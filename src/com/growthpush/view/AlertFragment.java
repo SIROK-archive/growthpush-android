@@ -49,6 +49,7 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 		}
 		alertBuilder.setMessage(getArguments().getString("message"));
 		alertBuilder.setPositiveButton("OK", this);
+		alertBuilder.setNegativeButton("Cancel", this);
 
 		Dialog dialog = alertBuilder.create();
 		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -61,14 +62,13 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 
-		if (shouldLaunchApplication()) {
+		if (which == -1 && shouldLaunchApplication()) {
 			PackageManager packageManager = getActivity().getPackageManager();
 			Intent intent = packageManager.getLaunchIntentForPackage(getActivity().getPackageName());
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(intent);
 		} else {
 			dialog.dismiss();
-			getActivity().finish();
 		}
 
 		NotificationManager manager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -85,6 +85,10 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 					continue;
 				if (taskInfo.topActivity.getClassName().equals(getActivity().getClass().getName()))
 					continue;
+
+				Intent intent = new Intent();
+				intent.setComponent(taskInfo.topActivity);
+				startActivity(intent);
 				return false;
 			}
 		} catch (SecurityException e) {

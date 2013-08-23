@@ -6,6 +6,8 @@ import java.util.concurrent.CountDownLatch;
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.growthpush.handler.DefaultReceiveHandler;
+import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
@@ -24,6 +26,7 @@ public class GrowthPush {
 	private Logger logger = new Logger();
 	private Client client = null;
 	private CountDownLatch latch = new CountDownLatch(1);
+	private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
 
 	private Context context = null;
 	private int applicationId;
@@ -195,6 +198,14 @@ public class GrowthPush {
 		setTag("Version", DeviceUtils.getVersion(context));
 		setTag("Build", DeviceUtils.getBuild(context));
 
+	}
+
+	public void setReceiveHandler(ReceiveHandler receiveHandler) {
+		this.receiveHandler = receiveHandler;
+	}
+
+	public ReceiveHandler getReceiveHandler() {
+		return receiveHandler;
 	}
 
 	public int getApplicationId() {
