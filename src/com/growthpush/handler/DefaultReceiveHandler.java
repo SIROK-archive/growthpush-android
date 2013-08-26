@@ -80,7 +80,7 @@ public class DefaultReceiveHandler implements ReceiveHandler {
 		}
 
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.notify(null, 1, builder.build());
+		notificationManager.notify("GrowthPush" + context.getPackageName(), 1, builder.build());
 
 	}
 

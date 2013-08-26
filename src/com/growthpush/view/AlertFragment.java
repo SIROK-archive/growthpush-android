@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -62,21 +63,39 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 
-		if (which == -1 && shouldLaunchApplication()) {
-			PackageManager packageManager = getActivity().getPackageManager();
-			Intent intent = packageManager.getLaunchIntentForPackage(getActivity().getPackageName());
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-		} else {
-			dialog.dismiss();
-		}
+		switch (which) {
+		case DialogInterface.BUTTON_POSITIVE:
 
-		NotificationManager manager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-		manager.cancel(null, 1);
+			ComponentName componentName = getComponentNameFromRunningTask();
+			if (componentName == null) {
+				PackageManager packageManager = getActivity().getPackageManager();
+				Intent intent = packageManager.getLaunchIntentForPackage(getActivity().getPackageName());
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			} else {
+				dialog.dismiss();
+				Intent intent = new Intent();
+				intent.setComponent(componentName);
+				startActivity(intent);
+			}
+
+			NotificationManager manager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+			manager.cancel("GrowthPush" + getActivity().getPackageName(), 1);
+			break;
+
+		case DialogInterface.BUTTON_NEGATIVE:
+
+			dialog.dismiss();
+			getActivity().finish();
+			break;
+
+		default:
+			break;
+		}
 
 	}
 
-	private boolean shouldLaunchApplication() {
+	private ComponentName getComponentNameFromRunningTask() {
 
 		try {
 			ActivityManager activityManager = (ActivityManager) getActivity().getSystemService(Service.ACTIVITY_SERVICE);
@@ -86,15 +105,12 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 				if (taskInfo.topActivity.getClassName().equals(getActivity().getClass().getName()))
 					continue;
 
-				Intent intent = new Intent();
-				intent.setComponent(taskInfo.topActivity);
-				startActivity(intent);
-				return false;
+				return taskInfo.topActivity;
 			}
 		} catch (SecurityException e) {
 		}
 
-		return true;
+		return null;
 
 	}
 
