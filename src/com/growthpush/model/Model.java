@@ -13,6 +13,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -57,6 +58,23 @@ public class Model {
 		}
 
 		return request(post);
+
+	}
+
+	public JSONObject put(final String api, Map<String, Object> params) {
+
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		for (Map.Entry<String, Object> entry : params.entrySet())
+			parameters.add(new BasicNameValuePair(entry.getKey(), String.valueOf(entry.getValue())));
+
+		HttpPut put = new HttpPut(GrowthPush.BASE_URL + "1/" + api);
+		put.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+		try {
+			put.setEntity(new UrlEncodedFormEntity(parameters, HTTP.UTF_8));
+		} catch (UnsupportedEncodingException e) {
+		}
+
+		return request(put);
 
 	}
 

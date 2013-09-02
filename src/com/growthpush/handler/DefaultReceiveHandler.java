@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.growthpush.view.AlertActivity;
@@ -45,6 +46,12 @@ public class DefaultReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.notify("GrowthPush" + context.getPackageName(), 1, generateNotification(context, intent.getExtras()));
+
+	}
+
+	private Notification generateNotification(Context context, Bundle extras) {
 		PackageManager packageManager = context.getPackageManager();
 
 		int icon = 0;
@@ -56,21 +63,16 @@ public class DefaultReceiveHandler implements ReceiveHandler {
 		} catch (NameNotFoundException e) {
 		}
 
-		String message = intent.getExtras().getString("message");
-		boolean sound = intent.getExtras().getBoolean("sound", false);
+		String message = extras.getString("message");
+		boolean sound = extras.getBoolean("sound", false);
 
-		Intent notificationIntent = packageManager.getLaunchIntentForPackage(context.getPackageName());
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
+				packageManager.getLaunchIntentForPackage(context.getPackageName()).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+				PendingIntent.FLAG_CANCEL_CURRENT);
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-		builder.setTicker(title);
-		builder.setSmallIcon(icon);
-		builder.setContentTitle(title);
-		builder.setContentText(message);
-		builder.setContentIntent(pendingIntent);
-		builder.setWhen(System.currentTimeMillis());
-		builder.setAutoCancel(true);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(context).setTicker(title).setSmallIcon(icon)
+				.setContentTitle(title).setContentText(message).setContentIntent(pendingIntent).setWhen(System.currentTimeMillis())
+				.setAutoCancel(true);
 		if (sound) {
 			builder.setDefaults(Notification.DEFAULT_SOUND);
 			try {
@@ -79,9 +81,7 @@ public class DefaultReceiveHandler implements ReceiveHandler {
 			}
 		}
 
-		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.notify("GrowthPush" + context.getPackageName(), 1, builder.build());
+		return builder.build();
 
 	}
-
 }

@@ -1,7 +1,6 @@
 package com.growthpush.view;
 
 import android.app.KeyguardManager;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +8,8 @@ import android.os.PowerManager;
 import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.growthpush.utils.SystemUtils;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
@@ -62,25 +63,23 @@ public class AlertActivity extends FragmentActivity {
 
 	private void managePower() {
 
-		try {
+		PowerManager powerManager = SystemUtils.getPowerManager(getApplicationContext());
+		if (powerManager == null)
+			return;
 
-			PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-			@SuppressWarnings("deprecation")
-			final PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
-					| PowerManager.ACQUIRE_CAUSES_WAKEUP, getClass().getName());
-			wakeLock.acquire();
+		@SuppressWarnings("deprecation")
+		final PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+				| PowerManager.ACQUIRE_CAUSES_WAKEUP, getClass().getName());
+		wakeLock.acquire();
 
-			new Handler().postDelayed(new Runnable() {
+		new Handler().postDelayed(new Runnable() {
 
-				@Override
-				public void run() {
-					wakeLock.release();
-				}
+			@Override
+			public void run() {
+				wakeLock.release();
+			}
 
-			}, WAKE_LOCK_TIMEROUT);
-
-		} catch (SecurityException e) {
-		}
+		}, WAKE_LOCK_TIMEROUT);
 
 	}
 
