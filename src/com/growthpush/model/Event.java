@@ -38,7 +38,8 @@ public class Event extends Model {
 		params.put("value", value);
 
 		JSONObject jsonObject = post("events", params);
-		setJsonObject(jsonObject);
+		if (jsonObject != null)
+			setJsonObject(jsonObject);
 
 		return this;
 

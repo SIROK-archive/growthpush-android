@@ -42,12 +42,24 @@ public class Client extends Model {
 		params.put("token", token);
 		params.put("environment", environment.toString());
 		params.put("os", "android");
-
 		JSONObject jsonObject = post("clients", params);
-		setJsonObject(jsonObject);
+		if (jsonObject != null)
+			setJsonObject(jsonObject);
 
 		return this;
 
+	}
+
+	public Client update() {
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("code", code);
+		params.put("token", token);
+
+		JSONObject jsonObject = put("clients/" + id, params);
+		setJsonObject(jsonObject);
+
+		return this;
 	}
 
 	public long getId() {

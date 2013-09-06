@@ -6,6 +6,8 @@ import java.util.concurrent.CountDownLatch;
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.growthpush.handler.DefaultReceiveHandler;
+import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
@@ -24,6 +26,7 @@ public class GrowthPush {
 	private Logger logger = new Logger();
 	private Client client = null;
 	private CountDownLatch latch = new CountDownLatch(1);
+	private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
 
 	private Context context = null;
 	private int applicationId;
@@ -90,36 +93,66 @@ public class GrowthPush {
 
 	public void registerClient(final String registrationId) {
 
-		Client client = Preference.getInstance().fetchClient();
-		if (client != null && client.getApplicationId() == applicationId) {
-			if (registrationId == null || registrationId.equals(client.getToken())) {
-				this.client = client;
-				latch.countDown();
-				return;
-			}
+		client = Preference.getInstance().fetchClient();
+		if (client == null || client.getApplicationId() != applicationId) {
+			createClient(registrationId);
+			return;
 		}
 
-		logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
+		if (registrationId == null || registrationId.equals(client.getToken()))
+			latch.countDown();
+		else
+			updateClient(registrationId);
+
+	}
+
+	private void createClient(final String registrationId) {
 
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-
 				try {
+
+					logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
 					GrowthPush.this.client = new Client(registrationId, environment).save(GrowthPush.this);
 					logger.info(String.format("Registering client success (clientId: %d)", GrowthPush.this.client.getId()));
+
 					logger.info(String.format("See https://growthpush.com/applications/%d/clients to check the client registration.",
 							applicationId));
-
 					Preference.getInstance().saveClient(GrowthPush.this.client);
 					latch.countDown();
+
 				} catch (GrowthPushException e) {
 					logger.info(String.format("Registering client fail. %s", e.getMessage()));
 				}
 
 			}
+		}).start();
 
+	}
+
+	private void updateClient(final String registrationId) {
+
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+
+					logger.info(String.format("Updating client... (applicationId: %d, environment: %s)", applicationId, environment));
+					GrowthPush.this.client.setToken(registrationId);
+					GrowthPush.this.client = GrowthPush.this.client.update();
+					logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
+
+					Preference.getInstance().saveClient(GrowthPush.this.client);
+					latch.countDown();
+
+				} catch (GrowthPushException e) {
+					logger.info(String.format("Updating client fail. %s", e.getMessage()));
+				}
+
+			}
 		}).start();
 
 	}
@@ -195,6 +228,14 @@ public class GrowthPush {
 		setTag("Version", DeviceUtils.getVersion(context));
 		setTag("Build", DeviceUtils.getBuild(context));
 
+	}
+
+	public void setReceiveHandler(ReceiveHandler receiveHandler) {
+		this.receiveHandler = receiveHandler;
+	}
+
+	public ReceiveHandler getReceiveHandler() {
+		return receiveHandler;
 	}
 
 	public int getApplicationId() {

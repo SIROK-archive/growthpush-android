@@ -34,7 +34,8 @@ public class Tag extends Model {
 		params.put("value", value);
 
 		JSONObject jsonObject = post("tags", params);
-		setJsonObject(jsonObject);
+		if (jsonObject != null)
+			setJsonObject(jsonObject);
 
 		return this;
 
