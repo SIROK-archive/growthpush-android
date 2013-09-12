@@ -2,6 +2,7 @@ package com.growthpush;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
@@ -25,6 +26,7 @@ public class GrowthPush {
 
 	private Logger logger = new Logger();
 	private Client client = null;
+	private Semaphore semaphore = new Semaphore(1);
 	private CountDownLatch latch = new CountDownLatch(1);
 	private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
 
@@ -93,67 +95,71 @@ public class GrowthPush {
 
 	public void registerClient(final String registrationId) {
 
-		client = Preference.getInstance().fetchClient();
-		if (client == null || client.getApplicationId() != applicationId) {
-			createClient(registrationId);
-			return;
-		}
+		new Thread(new Runnable() {
 
-		if (registrationId == null || registrationId.equals(client.getToken()))
-			latch.countDown();
-		else
-			updateClient(registrationId);
+			@Override
+			public void run() {
+
+				try {
+
+					semaphore.acquire();
+
+					client = Preference.getInstance().fetchClient();
+					if (client == null || client.getApplicationId() != applicationId) {
+						createClient(registrationId);
+						return;
+					}
+
+					if (registrationId == null || registrationId.equals(client.getToken()))
+						latch.countDown();
+					else
+						updateClient(registrationId);
+
+				} catch (InterruptedException e) {
+				} finally {
+					semaphore.release();
+				}
+
+			}
+
+		}).start();
 
 	}
 
 	private void createClient(final String registrationId) {
 
-		new Thread(new Runnable() {
+		try {
 
-			@Override
-			public void run() {
-				try {
+			logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
+			GrowthPush.this.client = new Client(registrationId, environment).save(GrowthPush.this);
+			logger.info(String.format("Registering client success (clientId: %d)", GrowthPush.this.client.getId()));
 
-					logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
-					GrowthPush.this.client = new Client(registrationId, environment).save(GrowthPush.this);
-					logger.info(String.format("Registering client success (clientId: %d)", GrowthPush.this.client.getId()));
+			logger.info(String
+					.format("See https://growthpush.com/applications/%d/clients to check the client registration.", applicationId));
+			Preference.getInstance().saveClient(GrowthPush.this.client);
+			latch.countDown();
 
-					logger.info(String.format("See https://growthpush.com/applications/%d/clients to check the client registration.",
-							applicationId));
-					Preference.getInstance().saveClient(GrowthPush.this.client);
-					latch.countDown();
-
-				} catch (GrowthPushException e) {
-					logger.info(String.format("Registering client fail. %s", e.getMessage()));
-				}
-
-			}
-		}).start();
+		} catch (GrowthPushException e) {
+			logger.info(String.format("Registering client fail. %s", e.getMessage()));
+		}
 
 	}
 
 	private void updateClient(final String registrationId) {
 
-		new Thread(new Runnable() {
+		try {
 
-			@Override
-			public void run() {
-				try {
+			logger.info(String.format("Updating client... (applicationId: %d, environment: %s)", applicationId, environment));
+			GrowthPush.this.client.setToken(registrationId);
+			GrowthPush.this.client = GrowthPush.this.client.update();
+			logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
 
-					logger.info(String.format("Updating client... (applicationId: %d, environment: %s)", applicationId, environment));
-					GrowthPush.this.client.setToken(registrationId);
-					GrowthPush.this.client = GrowthPush.this.client.update();
-					logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
+			Preference.getInstance().saveClient(GrowthPush.this.client);
+			latch.countDown();
 
-					Preference.getInstance().saveClient(GrowthPush.this.client);
-					latch.countDown();
-
-				} catch (GrowthPushException e) {
-					logger.info(String.format("Updating client fail. %s", e.getMessage()));
-				}
-
-			}
-		}).start();
+		} catch (GrowthPushException e) {
+			logger.info(String.format("Updating client fail. %s", e.getMessage()));
+		}
 
 	}
 
@@ -190,14 +196,14 @@ public class GrowthPush {
 
 	public void setTag(final String name, final String value) {
 
-		Tag tag = Preference.getInstance().fetchTag(name);
-		if (tag != null && value.equalsIgnoreCase(tag.getValue()))
-			return;
-
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
+
+				Tag tag = Preference.getInstance().fetchTag(name);
+				if (tag != null && value.equalsIgnoreCase(tag.getValue()))
+					return;
 
 				waitClientRegistration();
 
