@@ -140,7 +140,7 @@ public class GrowthPush {
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
-			logger.info(String.format("Registering client fail. %s", e.getMessage()));
+			logger.error(String.format("Registering client fail. %s", e.getMessage()));
 		}
 
 	}
@@ -158,7 +158,7 @@ public class GrowthPush {
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
-			logger.info(String.format("Updating client fail. %s", e.getMessage()));
+			logger.error(String.format("Updating client fail. %s", e.getMessage()));
 		}
 
 	}
@@ -181,7 +181,7 @@ public class GrowthPush {
 					Event event = new Event(name, value).save(GrowthPush.this);
 					logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimeStamp()));
 				} catch (GrowthPushException e) {
-					logger.info(String.format("Sending event fail. %s", e.getMessage()));
+					logger.error(String.format("Sending event fail. %s", e.getMessage()));
 				}
 
 			}
@@ -213,7 +213,7 @@ public class GrowthPush {
 					logger.info(String.format("Sending tag success"));
 					Preference.getInstance().saveTag(createdTag);
 				} catch (GrowthPushException e) {
-					logger.info(String.format("Sending tag fail. %s", e.getMessage()));
+					logger.error(String.format("Sending tag fail. %s", e.getMessage()));
 				}
 
 			}
@@ -250,6 +250,10 @@ public class GrowthPush {
 
 	public String getSecret() {
 		return secret;
+	}
+
+	public Logger getLogger() {
+		return logger;
 	}
 
 	public Client getClient() {

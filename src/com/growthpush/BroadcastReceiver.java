@@ -23,12 +23,11 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
 
 	private void handleRegistration(Context context, Intent intent) {
 
-		for (String key : intent.getExtras().keySet()) {
-			if (key.equals("registration_id")) {
-				GrowthPush.getInstance().registerClient(intent.getExtras().getString(key));
-				return;
-			}
-		}
+		if (intent.getExtras().containsKey("error"))
+			GrowthPush.getInstance().getLogger().error(String.format("GCM Registration failed. %s", intent.getExtras().getString("error")));
+
+		if (intent.getExtras().containsKey("registration_id"))
+			GrowthPush.getInstance().registerClient(intent.getExtras().getString("registration_id"));
 
 	}
 
