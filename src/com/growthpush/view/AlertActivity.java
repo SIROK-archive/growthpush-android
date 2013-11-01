@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.utils.SystemUtils;
 
 /**
@@ -18,6 +19,16 @@ public class AlertActivity extends FragmentActivity {
 
 	private static final int WAKE_LOCK_TIMEROUT = 10 * 1000;
 
+	private static DefaultReceiveHandler.Callback sharedCallback = null;
+
+	public static void setSharedCallback(DefaultReceiveHandler.Callback sharedCallback) {
+		AlertActivity.sharedCallback = sharedCallback;
+	}
+
+	public static DefaultReceiveHandler.Callback getSharedCallback() {
+		return sharedCallback;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -26,11 +37,14 @@ public class AlertActivity extends FragmentActivity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setTheme(android.R.style.Theme_Translucent);
 
-		manageKeyguard();
-		managePower();
-
-		AlertFragment fragment = new AlertFragment(getIntent().getExtras().getString("message"));
-		fragment.show(getSupportFragmentManager(), getClass().getName());
+		boolean showDialog = getIntent().getExtras().getBoolean("showDialog");
+		if (showDialog) {
+			showDialog();
+		} else {
+			if (sharedCallback != null)
+				sharedCallback.onOpen(this, getIntent());
+			finish();
+		}
 
 	}
 
@@ -40,6 +54,16 @@ public class AlertActivity extends FragmentActivity {
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
 		super.onDestroy();
+
+	}
+
+	private void showDialog() {
+
+		manageKeyguard();
+		managePower();
+
+		AlertFragment fragment = new AlertFragment(getIntent().getExtras().getString("message"));
+		fragment.show(getSupportFragmentManager(), getClass().getName());
 
 	}
 
@@ -61,16 +85,20 @@ public class AlertActivity extends FragmentActivity {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	private void managePower() {
 
 		PowerManager powerManager = SystemUtils.getPowerManager(getApplicationContext());
 		if (powerManager == null)
 			return;
 
-		@SuppressWarnings("deprecation")
 		final PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
 				| PowerManager.ACQUIRE_CAUSES_WAKEUP, getClass().getName());
-		wakeLock.acquire();
+		try {
+			wakeLock.acquire();
+		} catch (SecurityException e) {
+			return;
+		}
 
 		new Handler().postDelayed(new Runnable() {
 
@@ -82,5 +110,4 @@ public class AlertActivity extends FragmentActivity {
 		}, WAKE_LOCK_TIMEROUT);
 
 	}
-
 }

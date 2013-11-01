@@ -1,12 +1,10 @@
 package com.growthpush.view;
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -15,7 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-import com.growthpush.utils.SystemUtils;
+import com.growthpush.handler.DefaultReceiveHandler;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
@@ -27,6 +25,8 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 	}
 
 	public AlertFragment(String message) {
+
+		this();
 
 		Bundle bundle = new Bundle();
 		bundle.putString("message", message);
@@ -72,7 +72,10 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 		case DialogInterface.BUTTON_POSITIVE:
 
 			dialog.dismiss();
-			startActivity(getIntent());
+
+			DefaultReceiveHandler.Callback callback = AlertActivity.getSharedCallback();
+			if (callback != null)
+				callback.onOpen(this.getActivity(), this.getActivity().getIntent());
 
 			NotificationManager manager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 			manager.cancel("GrowthPush" + getActivity().getPackageName(), 1);
@@ -90,34 +93,4 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 
 	}
 
-	private Intent getIntent() {
-
-		ActivityManager activityManager = SystemUtils.getActivityManager(getActivity().getApplicationContext());
-		if (activityManager != null) {
-			Intent intent = getTopIntent(activityManager);
-			if (intent != null)
-				return intent;
-		}
-
-		return getActivity().getPackageManager().getLaunchIntentForPackage(getActivity().getPackageName())
-				.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-	}
-
-	private Intent getTopIntent(ActivityManager activityManager) {
-
-		for (ActivityManager.RunningTaskInfo taskInfo : activityManager.getRunningTasks(10)) {
-
-			if (!getActivity().getPackageName().equals(taskInfo.topActivity.getPackageName()))
-				continue;
-			if (taskInfo.topActivity.getClassName().equals(getActivity().getClass().getName()))
-				continue;
-
-			return new Intent().setComponent(taskInfo.topActivity);
-
-		}
-
-		return null;
-
-	}
 }

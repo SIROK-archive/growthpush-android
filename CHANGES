@@ -1,0 +1,19 @@
+= 0.1.4 (2013-10-31)
+
+* Add DefaultReceiveHandler.Callback class.
+* Make VIBRATE permission optional.
+* Make WAKE_LOCK permission optional.
+
+= 0.1.3 (2013-09-21)
+
+* Handle GCM registration errors
+
+= 0.1.2 (2013-09-12)
+
+* Prevent registering client twice.
+
+= 0.1.1 (2013-09-06)
+
+* Delegate notification process to ReceiveHandler.
+
+= 0.1.0 (2013-08-22)
