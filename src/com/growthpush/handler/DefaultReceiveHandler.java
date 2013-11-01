@@ -79,7 +79,7 @@ public class DefaultReceiveHandler implements ReceiveHandler {
 		}
 
 		String message = extras.getString("message");
-		boolean sound = extras.getBoolean("sound", false);
+		boolean sound = Boolean.valueOf(extras.getString("sound", "false"));
 
 		Intent intent = new Intent(context, AlertActivity.class);
 		intent.putExtra("showDialog", false);
