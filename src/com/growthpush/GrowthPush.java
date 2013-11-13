@@ -70,13 +70,13 @@ public class GrowthPush {
 
 	public GrowthPush register(final String senderId) {
 
-		if (context == null)
-			throw new IllegalStateException("GrowthPush is not initialized.");
-
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
+
+				if (context == null)
+					throw new IllegalStateException("GrowthPush is not initialized.");
 
 				GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 				try {
@@ -224,15 +224,24 @@ public class GrowthPush {
 
 	public void setDeviceTags() {
 
-		if (context == null)
-			throw new IllegalStateException("GrowthPush is not initialized.");
+		new Thread(new Runnable() {
 
-		setTag("Device", DeviceUtils.getDevice());
-		setTag("OS", DeviceUtils.getOs());
-		setTag("Language", DeviceUtils.getLanguage());
-		setTag("Time Zone", DeviceUtils.getTimeZone());
-		setTag("Version", DeviceUtils.getVersion(context));
-		setTag("Build", DeviceUtils.getBuild(context));
+			@Override
+			public void run() {
+
+				if (context == null)
+					throw new IllegalStateException("GrowthPush is not initialized.");
+
+				setTag("Device", DeviceUtils.getDevice());
+				setTag("OS", DeviceUtils.getOs());
+				setTag("Language", DeviceUtils.getLanguage());
+				setTag("Time Zone", DeviceUtils.getTimeZone());
+				setTag("Version", DeviceUtils.getVersion(context));
+				setTag("Build", DeviceUtils.getBuild(context));
+
+			}
+
+		}).start();
 
 	}
 
