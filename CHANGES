@@ -1,8 +1,14 @@
+= 0.1.5 (2013-11-13)
+
+* Catch uncaught exceptions
+* Remove Bundle#getString(String,String)
+
 = 0.1.4 (2013-10-31)
 
 * Add DefaultReceiveHandler.Callback class.
 * Make VIBRATE permission optional.
 * Make WAKE_LOCK permission optional.
+* Fix handling "sound" parameter
 
 = 0.1.3 (2013-09-21)
 
