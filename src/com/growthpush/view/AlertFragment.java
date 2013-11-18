@@ -1,5 +1,6 @@
 package com.growthpush.view;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -60,26 +61,41 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 
 		switch (which) {
 		case DialogInterface.BUTTON_POSITIVE:
-
-			dialog.dismiss();
-
-			DefaultReceiveHandler.Callback callback = AlertActivity.getSharedCallback();
-			if (callback != null)
-				callback.onOpen(this.getActivity(), this.getActivity().getIntent());
-
-			NotificationManager manager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-			manager.cancel("GrowthPush" + getActivity().getPackageName(), 1);
+			onClickPositive(dialog);
 			break;
-
 		case DialogInterface.BUTTON_NEGATIVE:
-
-			dialog.dismiss();
-			getActivity().finish();
+			onClickNegative(dialog);
 			break;
-
 		default:
 			break;
 		}
+
+	}
+
+	private void onClickPositive(DialogInterface dialog) {
+
+		dialog.dismiss();
+
+		DefaultReceiveHandler.Callback callback = AlertActivity.getSharedCallback();
+		if (callback != null)
+			callback.onOpen(this.getActivity(), this.getActivity().getIntent());
+
+		Activity activity = getActivity();
+		if (activity != null) {
+			NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+			if (notificationManager != null)
+				notificationManager.cancel("GrowthPush" + getActivity().getPackageName(), 1);
+		}
+
+	}
+
+	private void onClickNegative(DialogInterface dialog) {
+
+		dialog.dismiss();
+
+		Activity activity = getActivity();
+		if (activity != null)
+			activity.finish();
 
 	}
 
