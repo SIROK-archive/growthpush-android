@@ -24,16 +24,6 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 		super();
 	}
 
-	public AlertFragment(String message) {
-
-		this();
-
-		Bundle bundle = new Bundle();
-		bundle.putString("message", message);
-		this.setArguments(bundle);
-
-	}
-
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 
