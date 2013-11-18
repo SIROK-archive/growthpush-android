@@ -22,7 +22,10 @@ public class Thread extends java.lang.Thread {
 		setUncaughtExceptionHandler(new java.lang.Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(java.lang.Thread thread, Throwable e) {
-				GrowthPush.getInstance().getLogger().warning("Uncaught Exception: " + e.getClass().getName() + "; " + e.getMessage());
+				String message = "Uncaught Exception: " + e.getClass().getName();
+				if (e.getMessage() != null)
+					message += "; " + e.getMessage();
+				GrowthPush.getInstance().getLogger().warning(message);
 			}
 		});
 

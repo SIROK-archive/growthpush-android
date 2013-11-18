@@ -1,3 +1,9 @@
+= 0.1.6 (2013-11-18)
+
+* Avoid high API level methods
+* Fix ConcurrentModificationException of Preference#saveTag
+* Fix NullPointerException when empty response is returned from the server
+
 = 0.1.5 (2013-11-13)
 
 * Catch uncaught exceptions

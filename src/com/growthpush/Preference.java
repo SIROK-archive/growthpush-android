@@ -61,11 +61,19 @@ public class Preference {
 
 	}
 
-	public void saveClient(Client client) {
+	public synchronized void saveClient(Client client) {
+
+		if (client == null)
+			throw new IllegalArgumentException("Argument client cannot be null.");
+
 		save(CLIENT_KEY, client.getJsonObject());
+
 	}
 
-	public void saveTag(Tag tag) {
+	public synchronized void saveTag(Tag tag) {
+
+		if (tag == null)
+			throw new IllegalArgumentException("Argument tag cannot be null.");
 
 		JSONObject tags = fetch(TAG_KEY);
 		if (tags == null)
@@ -110,26 +118,22 @@ public class Preference {
 
 	}
 
-	private JSONObject getPreferences() {
+	private synchronized JSONObject getPreferences() {
 
 		if (context == null)
 			throw new IllegalStateException("Context is null.");
 
-		synchronized (this) {
-
-			if (this.preferences == null) {
-				try {
-					String json = IOUtils.toString(context.openFileInput(FILE_NAME));
-					this.preferences = new JSONObject(json);
-				} catch (IOException e) {
-				} catch (JSONException e) {
-				}
+		if (this.preferences == null) {
+			try {
+				String json = IOUtils.toString(context.openFileInput(FILE_NAME));
+				this.preferences = new JSONObject(json);
+			} catch (IOException e) {
+			} catch (JSONException e) {
 			}
-
-			if (this.preferences == null)
-				this.preferences = new JSONObject();
-
 		}
+
+		if (this.preferences == null)
+			this.preferences = new JSONObject();
 
 		return preferences;
 
