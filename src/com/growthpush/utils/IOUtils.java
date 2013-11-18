@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import android.os.Build;
+
 public class IOUtils {
 
 	public static String toString(InputStream inputStream) throws IOException {
@@ -23,14 +25,20 @@ public class IOUtils {
 			return stringBuilder.toString();
 
 		} catch (IOException e) {
-			throw new IOException("Failed to convert InputStream to String.", e);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
+				throw new IOException("Failed to convert InputStream to String.", e);
+			else
+				throw new IOException("Failed to convert InputStream to String.");
 		} finally {
 
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					throw new IOException("Failed to close InputStream.", e);
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
+						throw new IOException("Failed to close InputStream.", e);
+					else
+						throw new IOException("Failed to close InputStream.");
 				}
 			}
 
