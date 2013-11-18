@@ -84,7 +84,7 @@ public class Model {
 		try {
 			httpResponse = httpClient.execute(httpRequest);
 		} catch (IOException e) {
-			throw new GrowthPushException("Feiled to execute HTTP request.", e);
+			throw new GrowthPushException("Feiled to execute HTTP request. " + e.getMessage(), e);
 		}
 
 		JSONObject jsonObject = null;
@@ -93,11 +93,14 @@ public class Model {
 			String json = IOUtils.toString(inputStream);
 			jsonObject = new JSONObject(json);
 		} catch (IOException e) {
+			throw new GrowthPushException("Failed to read HTTP response. " + e.getMessage(), e);
 		} catch (JSONException e) {
+			throw new GrowthPushException("Failed to parse response JSON. " + e.getMessage(), e);
 		} finally {
 			try {
 				httpResponse.getEntity().consumeContent();
 			} catch (IOException e) {
+				throw new GrowthPushException("Failed to close connection. " + e.getMessage(), e);
 			}
 		}
 
