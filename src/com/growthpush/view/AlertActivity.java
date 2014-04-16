@@ -62,13 +62,21 @@ public class AlertActivity extends FragmentActivity {
 		manageKeyguard();
 		managePower();
 
-		AlertFragment fragment = new AlertFragment();
+		final AlertFragment fragment = new AlertFragment();
 
 		Bundle bundle = new Bundle();
 		bundle.putString("message", getIntent().getExtras().getString("message"));
 		fragment.setArguments(bundle);
 
-		fragment.show(getSupportFragmentManager(), getClass().getName());
+		if (!isFinishing()) {
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					fragment.show(getSupportFragmentManager(), getClass().getName());
+				}
+			});
+		}
 
 	}
 

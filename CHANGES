@@ -1,3 +1,7 @@
+= 0.1.7 (2014-04-16)
+
+* Improve class hierarchy.
+
 = 0.1.6 (2013-11-18)
 
 * Avoid high API level methods
