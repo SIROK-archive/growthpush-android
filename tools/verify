@@ -1,0 +1,16 @@
+#!/bin/bash
+
+TOOL_DIR=`dirname $0`
+ROOT_DIR="${TOOL_DIR}/../"
+FILES=('growthpush.jar' 'android-support-v4.jar' 'google-play-services.jar' 'README.md' 'LICENSE' 'THIRD_PARTY_LICENSES' 'CHANGES')
+
+for FILE in ${FILES[@]}; do
+	echo -n "Check ${FILE}... "
+	if [ -f ${ROOT_DIR}/${FILE} ]; then
+		echo 'exists.'
+	else
+		echo 'does NOT exist.'
+		echo '[FATAL] Failed to verify package.'
+		exit 1;
+	fi
+done
