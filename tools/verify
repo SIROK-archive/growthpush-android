@@ -1,5 +1,7 @@
 #!/bin/bash
 
+TMP_DIR='/tmp/growthpush-android/'
+
 TOOL_DIR=`dirname $0`
 ROOT_DIR="${TOOL_DIR}/../"
 FILES=('growthpush.jar' 'android-support-v4.jar' 'google-play-services.jar' 'README.md' 'LICENSE' 'THIRD_PARTY_LICENSES' 'CHANGES')
@@ -14,3 +16,26 @@ for FILE in ${FILES[@]}; do
 		exit 1;
 	fi
 done
+
+echo 'Unzip growthpush.jar...'
+mkdir -p ${TMP_DIR}
+rm -r ${TMP_DIR}/* ${TMP_DIR}/.*
+unzip ${ROOT_DIR}/growthpush.jar -d ${TMP_DIR}
+
+SOURCES=(`find ${ROOT_DIR}/source/src -name '*.java' -exec basename {} '.java' \;`)
+for SOURCE in ${SOURCES[@]}; do
+	echo -n "Check ${SOURCE}.java..." 
+	if [ `find ${TMP_DIR} -name "${SOURCE}.java" | wc -l` -gt 0 ]; then
+		echo 'exists.'
+		echo -n "Check ${SOURCE}.class..." 
+		if [ `find ${TMP_DIR} -name "${SOURCE}.class" | wc -l` -gt 0 ]; then
+			echo 'exists.'
+			continue
+		fi
+	fi
+	echo 'does NOT exist.'
+	echo '[FATAL] Failed to verify package.'
+	exit 1
+done
+
+echo '[SUCCESS] Completed to verify package.'
