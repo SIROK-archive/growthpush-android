@@ -37,23 +37,28 @@ public class Preference {
 
 	public Client fetchClient() {
 
+		JSONObject clientJsonObject = fetch(CLIENT_KEY);
+		if (clientJsonObject == null)
+			return null;
+
 		Client client = new Client();
-		client.setJsonObject(fetch(CLIENT_KEY));
+		client.setJsonObject(clientJsonObject);
+
 		return client;
 
 	}
 
 	public Tag fetchTag(String name) {
 
-		JSONObject tags = fetch(TAG_KEY);
-		if (tags == null)
+		JSONObject tagsJsonObject = fetch(TAG_KEY);
+		if (tagsJsonObject == null)
 			return null;
-		if (!tags.has(name))
+		if (!tagsJsonObject.has(name))
 			return null;
 
 		Tag tag = new Tag();
 		try {
-			tag.setJsonObject(tags.getJSONObject(name));
+			tag.setJsonObject(tagsJsonObject.getJSONObject(name));
 		} catch (JSONException e) {
 		}
 

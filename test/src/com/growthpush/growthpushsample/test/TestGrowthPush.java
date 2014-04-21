@@ -54,7 +54,7 @@ public class TestGrowthPush extends TestCase<MainActivity> {
 
 		waitClient(10);
 
-		assertTrue(GrowthPush.getInstance().getClient() == null || GrowthPush.getInstance().getClient().getId() == 0);
+		assertNull(GrowthPush.getInstance().getClient());
 
 	}
 
