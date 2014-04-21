@@ -55,4 +55,14 @@ public class TestCase<T extends Activity> extends ActivityInstrumentationTestCas
 
 	}
 
+	protected void waitClient(int second) throws Exception {
+
+		for (int i = 0; i < second; i++) {
+			if (GrowthPush.getInstance().getClient() != null && GrowthPush.getInstance().getClient().getId() > 0)
+				break;
+			Thread.sleep(1000);
+		}
+
+	}
+
 }

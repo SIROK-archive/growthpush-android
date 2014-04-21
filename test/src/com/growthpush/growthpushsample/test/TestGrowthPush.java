@@ -15,47 +15,47 @@ public class TestGrowthPush extends TestCase<MainActivity> {
 
 		super.setUp();
 
-		initialize();
+		Thread.sleep(10);
 
+	}
+
+	public void testRegisterWithDevelopment() throws Exception {
+
+		initialize();
 		GrowthPush.getInstance().initialize(getActivity().getApplicationContext(), APPLICATION_ID, APPLICATION_SECRET,
 				Environment.development, true);
-
-	}
-
-	public void testRegister() {
 		GrowthPush.getInstance().register(SENDER_ID);
+
+		waitClient(30);
+		assertNotNull(GrowthPush.getInstance().getClient());
+		assertEquals(Environment.development, GrowthPush.getInstance().getClient().getEnvironment());
+
 	}
 
-	public void testRegisterWithInvalidSenderId() {
+	public void testRegisterWithProduction() throws Exception {
+
+		initialize();
+		GrowthPush.getInstance().initialize(getActivity().getApplicationContext(), APPLICATION_ID, APPLICATION_SECRET,
+				Environment.production, true);
+		GrowthPush.getInstance().register(SENDER_ID);
+
+		waitClient(30);
+		assertNotNull(GrowthPush.getInstance().getClient());
+		assertEquals(Environment.production, GrowthPush.getInstance().getClient().getEnvironment());
+
+	}
+
+	public void testRegisterWithInvalidSenderId() throws Exception {
+
+		initialize();
+		GrowthPush.getInstance().initialize(getActivity().getApplicationContext(), APPLICATION_ID, APPLICATION_SECRET,
+				Environment.development, true);
 		GrowthPush.getInstance().register("INVALID_SENDER_ID");
-	}
 
-	public void testTrackEvent() {
-		GrowthPush.getInstance().trackEvent("Launch");
-	}
+		waitClient(10);
 
-	public void testTrackEventWithInvalidName() {
-		GrowthPush.getInstance().trackEvent(null);
-	}
+		assertTrue(GrowthPush.getInstance().getClient() == null || GrowthPush.getInstance().getClient().getId() == 0);
 
-	public void testTrackEventWithValue() {
-		GrowthPush.getInstance().trackEvent("Payment", String.valueOf(500));
-	}
-
-	public void testSetDeviceTags() {
-		GrowthPush.getInstance().setDeviceTags();
-	}
-
-	public void testSetTag() {
-		GrowthPush.getInstance().setTag("Payed User");
-	}
-
-	public void testSetTagWithInvalidName() {
-		GrowthPush.getInstance().setTag(null);
-	}
-
-	public void testSetTagWithValu() {
-		GrowthPush.getInstance().setTag("Gender", "male");
 	}
 
 }
