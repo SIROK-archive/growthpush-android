@@ -174,6 +174,11 @@ public class GrowthPush {
 			@Override
 			public void run() {
 
+				if (name == null) {
+					logger.warning("Event name cannot be null.");
+					return;
+				}
+
 				waitClientRegistration();
 
 				logger.info(String.format("Sending event ... (name: %s)", name));
@@ -200,6 +205,11 @@ public class GrowthPush {
 
 			@Override
 			public void run() {
+
+				if (name == null) {
+					logger.warning("Tag name cannot be null.");
+					return;
+				}
 
 				Tag tag = Preference.getInstance().fetchTag(name);
 				if (tag != null && value.equalsIgnoreCase(tag.getValue()))
