@@ -74,6 +74,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
 			sound = Boolean.valueOf(extras.getString("sound"));
 
 		Intent intent = new Intent(context, AlertActivity.class);
+		intent.putExtras(extras);
 		intent.putExtra("showDialog", false);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
