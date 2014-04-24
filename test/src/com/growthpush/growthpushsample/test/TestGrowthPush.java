@@ -15,8 +15,6 @@ public class TestGrowthPush extends TestCase<MainActivity> {
 
 		super.setUp();
 
-		Thread.sleep(10);
-
 	}
 
 	public void testRegisterWithDevelopment() throws Exception {
@@ -26,7 +24,7 @@ public class TestGrowthPush extends TestCase<MainActivity> {
 				Environment.development, true);
 		GrowthPush.getInstance().register(SENDER_ID);
 
-		waitClient(30);
+		waitClient();
 		assertNotNull(GrowthPush.getInstance().getClient());
 		assertEquals(Environment.development, GrowthPush.getInstance().getClient().getEnvironment());
 
@@ -39,7 +37,7 @@ public class TestGrowthPush extends TestCase<MainActivity> {
 				Environment.production, true);
 		GrowthPush.getInstance().register(SENDER_ID);
 
-		waitClient(30);
+		waitClient();
 		assertNotNull(GrowthPush.getInstance().getClient());
 		assertEquals(Environment.production, GrowthPush.getInstance().getClient().getEnvironment());
 
@@ -52,9 +50,14 @@ public class TestGrowthPush extends TestCase<MainActivity> {
 				Environment.development, true);
 		GrowthPush.getInstance().register("INVALID_SENDER_ID");
 
-		waitClient(10);
+		try {
+			waitClient();
+		} catch (RuntimeException e) {
+			assertNull(GrowthPush.getInstance().getClient());
+			return;
+		}
 
-		assertNull(GrowthPush.getInstance().getClient());
+		fail();
 
 	}
 

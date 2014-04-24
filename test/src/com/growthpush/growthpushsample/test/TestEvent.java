@@ -15,15 +15,13 @@ public class TestEvent extends TestCase<MainActivity> {
 
 		super.setUp();
 
-		Thread.sleep(10);
-
 		initialize();
 
 		GrowthPush.getInstance().initialize(getActivity().getApplicationContext(), APPLICATION_ID, APPLICATION_SECRET,
 				Environment.development, true);
 		GrowthPush.getInstance().register(SENDER_ID);
 
-		waitClient(30);
+		waitClient();
 
 	}
 

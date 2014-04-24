@@ -55,13 +55,19 @@ public class TestCase<T extends Activity> extends ActivityInstrumentationTestCas
 
 	}
 
+	protected void waitClient() throws Exception {
+		waitClient(30);
+	}
+
 	protected void waitClient(int second) throws Exception {
 
 		for (int i = 0; i < second; i++) {
 			if (GrowthPush.getInstance().getClient() != null)
-				break;
+				return;
 			Thread.sleep(1000);
 		}
+
+		throw new RuntimeException("wating client timeout");
 
 	}
 
