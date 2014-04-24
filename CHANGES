@@ -4,6 +4,7 @@
 * Add sample project and tests
 * Avoid to send events and tags with null name
 * Add bridge class for Cocos2d-x
+* Pass custom fields to intent as onOpen callback parameter
 
 = 0.1.7 (2014-04-16)
 
