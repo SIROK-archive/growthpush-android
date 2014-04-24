@@ -25,16 +25,19 @@ public class TestEvent extends TestCase<MainActivity> {
 
 	}
 
-	public void testTrackEvent() {
+	public void testTrackEvent() throws InterruptedException {
 		GrowthPush.getInstance().trackEvent("Launch");
+		Thread.sleep(1000);
 	}
 
-	public void testTrackEventWithInvalidName() {
+	public void testTrackEventWithInvalidName() throws InterruptedException {
 		GrowthPush.getInstance().trackEvent(null);
+		Thread.sleep(1000);
 	}
 
-	public void testTrackEventWithValue() {
+	public void testTrackEventWithValue() throws InterruptedException {
 		GrowthPush.getInstance().trackEvent("Payment", String.valueOf(500));
+		Thread.sleep(1000);
 	}
 
 }

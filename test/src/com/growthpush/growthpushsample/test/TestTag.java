@@ -26,8 +26,9 @@ public class TestTag extends TestCase<MainActivity> {
 
 	}
 
-	public void testSetDeviceTags() {
+	public void testSetDeviceTags() throws InterruptedException {
 		GrowthPush.getInstance().setDeviceTags();
+		Thread.sleep(2000);
 		assertNotNull(Preference.getInstance().fetchTag("OS"));
 		assertNotNull(Preference.getInstance().fetchTag("Version"));
 		assertNotNull(Preference.getInstance().fetchTag("Language"));
@@ -36,19 +37,22 @@ public class TestTag extends TestCase<MainActivity> {
 		assertNotNull(Preference.getInstance().fetchTag("Build"));
 	}
 
-	public void testSetTag() {
+	public void testSetTag() throws InterruptedException {
 		assertNull(Preference.getInstance().fetchTag("Payed User"));
 		GrowthPush.getInstance().setTag("Payed User");
+		Thread.sleep(2000);
 		assertNotNull(Preference.getInstance().fetchTag("Payed User"));
 	}
 
-	public void testSetTagWithInvalidName() {
+	public void testSetTagWithInvalidName() throws InterruptedException {
 		GrowthPush.getInstance().setTag(null);
+		Thread.sleep(1000);
 	}
 
-	public void testSetTagWithValu() {
+	public void testSetTagWithValue() throws InterruptedException {
 		assertNull(Preference.getInstance().fetchTag("Gender"));
 		GrowthPush.getInstance().setTag("Gender", "male");
+		Thread.sleep(2000);
 		assertNotNull(Preference.getInstance().fetchTag("Gender"));
 		assertEquals("male", Preference.getInstance().fetchTag("Gender").getValue());
 	}

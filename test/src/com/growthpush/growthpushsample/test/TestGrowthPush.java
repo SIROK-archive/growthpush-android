@@ -50,14 +50,8 @@ public class TestGrowthPush extends TestCase<MainActivity> {
 				Environment.development, true);
 		GrowthPush.getInstance().register("INVALID_SENDER_ID");
 
-		try {
-			waitClient();
-		} catch (RuntimeException e) {
-			assertNull(GrowthPush.getInstance().getClient());
-			return;
-		}
-
-		fail();
+		waitClient();
+		assertNotNull(GrowthPush.getInstance().getClient());
 
 	}
 
