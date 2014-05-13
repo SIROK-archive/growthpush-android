@@ -64,6 +64,10 @@ public class GrowthPush {
 		this.logger.setDebug(debug);
 		Preference.getInstance().setContext(context);
 
+		client = Preference.getInstance().fetchClient();
+		if (client != null && client.getApplicationId() != applicationId)
+			this.clearClient();
+
 		return this;
 
 	}
@@ -110,10 +114,13 @@ public class GrowthPush {
 						return;
 					}
 
-					if (registrationId == null || registrationId.equals(client.getToken()))
-						latch.countDown();
-					else
+					if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
 						updateClient(registrationId);
+						return;
+					}
+
+					logger.info("Client already registered.");
+					latch.countDown();
 
 				} catch (InterruptedException e) {
 				} finally {
@@ -149,8 +156,10 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Updating client... (applicationId: %d, environment: %s)", applicationId, environment));
+			logger.info(String.format("Updating client... (applicationId: %d, token: %s, environment: %s)", applicationId, registrationId,
+					environment));
 			GrowthPush.this.client.setToken(registrationId);
+			GrowthPush.this.client.setEnvironment(environment);
 			GrowthPush.this.client = GrowthPush.this.client.update();
 			logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
 
@@ -287,6 +296,14 @@ public class GrowthPush {
 			} catch (InterruptedException e) {
 			}
 		}
+
+	}
+
+	private void clearClient() {
+
+		this.client = null;
+		Preference.getInstance().deleteClient();
+		Preference.getInstance().deleteTags();
 
 	}
 

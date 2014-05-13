@@ -1,3 +1,8 @@
+= 1.1.1 (2014-05-14)
+
+* Clear all tags when application id is changed
+* Update client's environment when it is changed
+
 = 1.1.0 (2014-04-25)
 
 * Add binary library

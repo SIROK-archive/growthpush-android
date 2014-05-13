@@ -93,6 +93,14 @@ public class Preference {
 
 	}
 
+	public void deleteClient() {
+		save(CLIENT_KEY, null);
+	}
+
+	public void deleteTags() {
+		save(TAG_KEY, null);
+	}
+
 	private JSONObject fetch(String key) {
 
 		try {
