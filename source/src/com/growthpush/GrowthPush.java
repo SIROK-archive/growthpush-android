@@ -156,8 +156,10 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Updating client... (applicationId: %d, environment: %s)", applicationId, environment));
+			logger.info(String.format("Updating client... (applicationId: %d, token: %s, environment: %s)", applicationId, registrationId,
+					environment));
 			GrowthPush.this.client.setToken(registrationId);
+			GrowthPush.this.client.setEnvironment(environment);
 			GrowthPush.this.client = GrowthPush.this.client.update();
 			logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
 

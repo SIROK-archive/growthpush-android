@@ -55,6 +55,7 @@ public class Client extends Model {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("code", code);
 		params.put("token", token);
+		params.put("environment", environment.toString());
 
 		JSONObject jsonObject = put("clients/" + id, params);
 		setJsonObject(jsonObject);
