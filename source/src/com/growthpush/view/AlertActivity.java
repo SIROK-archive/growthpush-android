@@ -1,6 +1,9 @@
 package com.growthpush.view;
 
 import android.app.KeyguardManager;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +18,7 @@ import com.growthpush.utils.SystemUtils;
 /**
  * Created by Shigeru Ogawa on 13/08/12.
  */
-public class AlertActivity extends FragmentActivity {
+public class AlertActivity extends FragmentActivity implements DialogCallback {
 
 	private static final int WAKE_LOCK_TIMEROUT = 10 * 1000;
 
@@ -63,6 +66,7 @@ public class AlertActivity extends FragmentActivity {
 		managePower();
 
 		final AlertFragment fragment = new AlertFragment();
+		fragment.setCancelable(false);
 
 		Bundle bundle = new Bundle();
 		bundle.putString("message", getIntent().getExtras().getString("message"));
@@ -126,4 +130,23 @@ public class AlertActivity extends FragmentActivity {
 		}, WAKE_LOCK_TIMEROUT);
 
 	}
+
+	@Override
+	public void onClickPositive(DialogInterface dialog) {
+
+		dialog.dismiss();
+		if (sharedCallback != null)
+			sharedCallback.onOpen(this, this.getIntent());
+
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		if (notificationManager != null)
+			notificationManager.cancel("GrowthPush" + getPackageName(), 1);
+	}
+
+	@Override
+	public void onClickNegative(DialogInterface dialog) {
+		dialog.dismiss();
+		finish();
+	}
+
 }
