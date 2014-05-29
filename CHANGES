@@ -1,3 +1,7 @@
+= 1.1.2 (2014-05-29)
+
+* modifyed to destory AlertActivity when displayed dialog pressed back key
+
 = 1.1.1 (2014-05-14)
 
 * Clear all tags when application id is changed
