@@ -22,9 +22,9 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.utils.IOUtils;
 import com.growthpush.GrowthPush;
 import com.growthpush.GrowthPushException;
-import com.growthpush.utils.IOUtils;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
