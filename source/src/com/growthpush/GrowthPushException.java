@@ -1,6 +1,8 @@
 package com.growthpush;
 
-public class GrowthPushException extends RuntimeException {
+import com.growthbeat.GrowthbeatException;
+
+public class GrowthPushException extends GrowthbeatException {
 
 	private static final long serialVersionUID = 1L;
 
