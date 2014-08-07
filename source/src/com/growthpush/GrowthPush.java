@@ -7,6 +7,7 @@ import java.util.concurrent.Semaphore;
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.growthbeat.CatchableThread;
 import com.growthbeat.Logger;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
@@ -305,6 +306,22 @@ public class GrowthPush {
 		this.client = null;
 		Preference.getInstance().deleteClient();
 		Preference.getInstance().deleteTags();
+
+	}
+
+	private static class Thread extends CatchableThread {
+
+		public Thread(Runnable runnable) {
+			super(runnable);
+		}
+
+		@Override
+		public void uncaughtException(java.lang.Thread thread, Throwable e) {
+			String message = "Uncaught Exception: " + e.getClass().getName();
+			if (e.getMessage() != null)
+				message += "; " + e.getMessage();
+			logger.warning(message);
+		}
 
 	}
 
