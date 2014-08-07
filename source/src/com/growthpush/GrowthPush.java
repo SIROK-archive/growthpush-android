@@ -16,6 +16,7 @@ import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
+import com.growthpush.model.GrowthPushHttpClient;
 import com.growthpush.model.Tag;
 
 /**
@@ -27,6 +28,7 @@ public class GrowthPush {
 
 	private static final GrowthPush instance = new GrowthPush();
 	private static final Logger logger = new Logger("Growth Push");
+	private final GrowthPushHttpClient httpClient = new GrowthPushHttpClient();
 
 	private Client client = null;
 	private Semaphore semaphore = new Semaphore(1);
@@ -40,6 +42,7 @@ public class GrowthPush {
 
 	private GrowthPush() {
 		super();
+		httpClient.setBaseUrl(BASE_URL);
 	}
 
 	public static GrowthPush getInstance() {
@@ -285,6 +288,10 @@ public class GrowthPush {
 
 	public Logger getLogger() {
 		return logger;
+	}
+
+	public GrowthPushHttpClient getHttpClient() {
+		return httpClient;
 	}
 
 	public Client getClient() {
