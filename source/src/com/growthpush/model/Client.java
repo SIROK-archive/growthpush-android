@@ -1,7 +1,5 @@
 package com.growthpush.model;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +7,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.utils.DateUtils;
 import com.growthpush.GrowthPush;
 
 /**
@@ -132,7 +131,7 @@ public class Client extends Model {
 			if (getStatus() != null)
 				jsonObject.put("status", getStatus().toString());
 			if (getCreated() != null)
-				jsonObject.put("created", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getCreated()));
+				jsonObject.put("created", DateUtils.format(getCreated(), "yyyy-MM-dd HH:mm:ss"));
 		} catch (JSONException e) {
 			return null;
 		}
@@ -159,12 +158,8 @@ public class Client extends Model {
 				setEnvironment(Environment.valueOf(jsonObject.getString("environment")));
 			if (jsonObject.has("status"))
 				setStatus(ClientStatus.valueOf(jsonObject.getString("status")));
-			if (jsonObject.has("created")) {
-				try {
-					setCreated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(jsonObject.getString("created")));
-				} catch (ParseException e) {
-				}
-			}
+			if (jsonObject.has("created"))
+				setCreated(DateUtils.parse(jsonObject.getString("created"), "yyyy-MM-dd HH:mm:ss"));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
