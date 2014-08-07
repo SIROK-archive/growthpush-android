@@ -12,8 +12,8 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.growthbeat.utils.SystemServiceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
-import com.growthpush.utils.SystemUtils;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
@@ -108,7 +108,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 	@SuppressWarnings("deprecation")
 	private void managePower() {
 
-		PowerManager powerManager = SystemUtils.getPowerManager(getApplicationContext());
+		PowerManager powerManager = SystemServiceUtils.getPowerManager(getApplicationContext());
 		if (powerManager == null)
 			return;
 

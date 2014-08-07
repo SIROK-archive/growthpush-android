@@ -9,13 +9,14 @@ import android.content.Context;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.Logger;
+import com.growthbeat.utils.AppUtils;
+import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
-import com.growthpush.utils.DeviceUtils;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
@@ -253,12 +254,12 @@ public class GrowthPush {
 				if (context == null)
 					throw new IllegalStateException("GrowthPush is not initialized.");
 
-				setTag("Device", DeviceUtils.getDevice());
-				setTag("OS", DeviceUtils.getOs());
+				setTag("Device", DeviceUtils.getModel());
+				setTag("OS", "Android " + DeviceUtils.getOsVersion());
 				setTag("Language", DeviceUtils.getLanguage());
 				setTag("Time Zone", DeviceUtils.getTimeZone());
-				setTag("Version", DeviceUtils.getVersion(context));
-				setTag("Build", DeviceUtils.getBuild(context));
+				setTag("Version", AppUtils.getaAppVersion(context));
+				setTag("Build", AppUtils.getAppBuild(context));
 
 			}
 
