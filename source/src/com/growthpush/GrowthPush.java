@@ -7,6 +7,7 @@ import java.util.concurrent.Semaphore;
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.growthbeat.Logger;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
@@ -23,8 +24,8 @@ public class GrowthPush {
 	public static final String BASE_URL = "https://api.growthpush.com/";
 
 	private static final GrowthPush instance = new GrowthPush();
+	private static final Logger logger = new Logger("Growth Push");
 
-	private Logger logger = new Logger();
 	private Client client = null;
 	private Semaphore semaphore = new Semaphore(1);
 	private CountDownLatch latch = new CountDownLatch(1);
@@ -61,7 +62,7 @@ public class GrowthPush {
 		this.secret = secret;
 		this.environment = environment;
 
-		this.logger.setDebug(debug);
+		this.logger.setSilent(debug);
 		Preference.getInstance().setContext(context);
 
 		client = Preference.getInstance().fetchClient();
