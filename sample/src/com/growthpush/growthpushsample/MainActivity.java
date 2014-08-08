@@ -14,10 +14,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		GrowthPush
-				.getInstance()
-				.initialize(getApplicationContext(), 1071, "Ou3DgCwmMS2tBocWXGKSnRUUTyVA078n",
-						BuildConfig.DEBUG ? Environment.development : Environment.production, true).register("955057365401");
+		GrowthPush.getInstance().initialize(getApplicationContext(), "dy6VlRMnN3juhW9L", "NuvkVhQtRDG2nrNeDzHXzZO5c6j0Xu5t",
+				BuildConfig.DEBUG ? Environment.development : Environment.production, "955057365401");
 		GrowthPush.getInstance().trackEvent("Launch");
 		GrowthPush.getInstance().setDeviceTags();
 
