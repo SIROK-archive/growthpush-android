@@ -19,16 +19,14 @@ import com.growthpush.model.Event;
 import com.growthpush.model.GrowthPushHttpClient;
 import com.growthpush.model.Tag;
 
-/**
- * Created by Shigeru Ogawa on 13/08/12.
- */
 public class GrowthPush {
 
 	public static final String BASE_URL = "https://api.growthpush.com/";
 
 	private static final GrowthPush instance = new GrowthPush();
-	private static final Logger logger = new Logger("Growth Push");
+	private final Logger logger = new Logger("Growth Push");
 	private final GrowthPushHttpClient httpClient = new GrowthPushHttpClient();
+	private final Preference preference = new Preference();
 
 	private Client client = null;
 	private Semaphore semaphore = new Semaphore(1);
@@ -68,9 +66,9 @@ public class GrowthPush {
 		this.environment = environment;
 
 		this.logger.setSilent(debug);
-		Preference.getInstance().setContext(context);
+		this.preference.setContext(context);
 
-		client = Preference.getInstance().fetchClient();
+		client = this.preference.fetchClient();
 		if (client != null && client.getApplicationId() != applicationId)
 			this.clearClient();
 
@@ -114,7 +112,7 @@ public class GrowthPush {
 
 					semaphore.acquire();
 
-					client = Preference.getInstance().fetchClient();
+					client = GrowthPush.this.preference.fetchClient();
 					if (client == null || client.getApplicationId() != applicationId) {
 						createClient(registrationId);
 						return;
@@ -149,7 +147,7 @@ public class GrowthPush {
 
 			logger.info(String
 					.format("See https://growthpush.com/applications/%d/clients to check the client registration.", applicationId));
-			Preference.getInstance().saveClient(GrowthPush.this.client);
+			this.preference.saveClient(GrowthPush.this.client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
@@ -169,7 +167,7 @@ public class GrowthPush {
 			GrowthPush.this.client = GrowthPush.this.client.update();
 			logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
 
-			Preference.getInstance().saveClient(GrowthPush.this.client);
+			this.preference.saveClient(GrowthPush.this.client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
@@ -226,7 +224,7 @@ public class GrowthPush {
 					return;
 				}
 
-				Tag tag = Preference.getInstance().fetchTag(name);
+				Tag tag = GrowthPush.this.preference.fetchTag(name);
 				if (tag != null && value.equalsIgnoreCase(tag.getValue()))
 					return;
 
@@ -236,7 +234,7 @@ public class GrowthPush {
 				try {
 					Tag createdTag = new Tag(name, value).save(GrowthPush.this);
 					logger.info(String.format("Sending tag success"));
-					Preference.getInstance().saveTag(createdTag);
+					GrowthPush.this.preference.saveTag(createdTag);
 				} catch (GrowthPushException e) {
 					logger.error(String.format("Sending tag fail. %s", e.getMessage()));
 				}
@@ -294,6 +292,10 @@ public class GrowthPush {
 		return httpClient;
 	}
 
+	public Preference getPreference() {
+		return preference;
+	}
+
 	public Client getClient() {
 		return client;
 	}
@@ -312,8 +314,8 @@ public class GrowthPush {
 	private void clearClient() {
 
 		this.client = null;
-		Preference.getInstance().deleteClient();
-		Preference.getInstance().deleteTags();
+		this.preference.deleteClient();
+		this.preference.deleteTags();
 
 	}
 
@@ -328,7 +330,8 @@ public class GrowthPush {
 			String message = "Uncaught Exception: " + e.getClass().getName();
 			if (e.getMessage() != null)
 				message += "; " + e.getMessage();
-			logger.warning(message);
+			GrowthPush.getInstance().getLogger().warning(message);
+			e.printStackTrace();
 		}
 
 	}
