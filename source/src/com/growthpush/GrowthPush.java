@@ -8,6 +8,7 @@ import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
+import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
@@ -35,7 +36,7 @@ public class GrowthPush {
 
 	private Context context = null;
 	private int applicationId;
-	private String secret;
+	private String credentialId;
 	private Environment environment = null;
 
 	private GrowthPush() {
@@ -47,44 +48,34 @@ public class GrowthPush {
 		return instance;
 	}
 
-	public GrowthPush initialize(Context context, int applicationId, String secret) {
-		return initialize(context, applicationId, secret, Environment.production, false);
-	}
-
-	public GrowthPush initialize(Context context, int applicationId, String secret, Environment environment) {
-		return initialize(context, applicationId, secret, environment, false);
-	}
-
-	public GrowthPush initialize(Context context, int applicationId, String secret, Environment environment, boolean debug) {
+	public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment,
+			final String senderId) {
 
 		if (this.context != null)
-			return this;
+			return;
+
+		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 
 		this.context = context;
-		this.applicationId = applicationId;
-		this.secret = secret;
+		// TODO migrate to new API
+		this.applicationId = 0;
+		this.credentialId = credentialId;
 		this.environment = environment;
 
-		this.logger.setSilent(!debug);
+		// TODO set logger configuration
 		this.preference.setContext(context);
-
-		client = this.preference.fetchClient();
-		if (client != null && client.getApplicationId() != applicationId)
-			this.clearClient();
-
-		return this;
-
-	}
-
-	public GrowthPush register(final String senderId) {
 
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 
-				if (context == null)
-					throw new IllegalStateException("GrowthPush is not initialized.");
+				com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+				client = GrowthPush.this.preference.fetchClient();
+
+				if (client != null && client.getGrowthbeatClientId() != null
+						&& !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
+					GrowthPush.this.clearClient();
 
 				GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 				try {
@@ -96,8 +87,6 @@ public class GrowthPush {
 			}
 
 		}).start();
-
-		return this;
 
 	}
 
@@ -112,9 +101,10 @@ public class GrowthPush {
 
 					semaphore.acquire();
 
+					com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
 					client = GrowthPush.this.preference.fetchClient();
 					if (client == null || client.getApplicationId() != applicationId) {
-						createClient(registrationId);
+						createClient(growthbeatClient.getId(), registrationId);
 						return;
 					}
 
@@ -137,17 +127,17 @@ public class GrowthPush {
 
 	}
 
-	private void createClient(final String registrationId) {
+	private void createClient(final String growthbeatClientId, final String registrationId) {
 
 		try {
 
 			logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
-			GrowthPush.this.client = new Client(registrationId, environment).save(GrowthPush.this);
-			logger.info(String.format("Registering client success (clientId: %d)", GrowthPush.this.client.getId()));
+			client = new Client(growthbeatClientId, registrationId, environment).save(GrowthPush.this);
+			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
 
 			logger.info(String
 					.format("See https://growthpush.com/applications/%d/clients to check the client registration.", applicationId));
-			this.preference.saveClient(GrowthPush.this.client);
+			this.preference.saveClient(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
@@ -162,12 +152,12 @@ public class GrowthPush {
 
 			logger.info(String.format("Updating client... (applicationId: %d, token: %s, environment: %s)", applicationId, registrationId,
 					environment));
-			GrowthPush.this.client.setToken(registrationId);
-			GrowthPush.this.client.setEnvironment(environment);
-			GrowthPush.this.client = GrowthPush.this.client.update();
-			logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
+			client.setToken(registrationId);
+			client.setEnvironment(environment);
+			client = client.update();
+			logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
-			this.preference.saveClient(GrowthPush.this.client);
+			this.preference.saveClient(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
@@ -280,8 +270,8 @@ public class GrowthPush {
 		return applicationId;
 	}
 
-	public String getSecret() {
-		return secret;
+	public String getCredentialId() {
+		return credentialId;
 	}
 
 	public Logger getLogger() {

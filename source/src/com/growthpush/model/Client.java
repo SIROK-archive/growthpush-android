@@ -16,6 +16,7 @@ import com.growthpush.GrowthPush;
 public class Client extends Model {
 
 	private long id;
+	private String growthbeatClientId;
 	private int applicationId;
 	private String code;
 	private String token;
@@ -27,8 +28,9 @@ public class Client extends Model {
 		super();
 	}
 
-	public Client(String token, Environment environment) {
+	public Client(String growthbeatClientId, String token, Environment environment) {
 		this();
+		setGrowthbeatClientId(growthbeatClientId);
 		setToken(token);
 		setEnvironment(environment);
 	}
@@ -36,8 +38,9 @@ public class Client extends Model {
 	public Client save(GrowthPush growthPush) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("growthbeatClientId", growthbeatClientId);
 		params.put("applicationId", growthPush.getApplicationId());
-		params.put("secret", growthPush.getSecret());
+		params.put("credentialId", growthPush.getCredentialId());
 		params.put("token", token);
 		params.put("environment", environment.toString());
 		params.put("os", "android");
@@ -68,6 +71,14 @@ public class Client extends Model {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getGrowthbeatClientId() {
+		return growthbeatClientId;
+	}
+
+	public void setGrowthbeatClientId(String growthbeatClientId) {
+		this.growthbeatClientId = growthbeatClientId;
 	}
 
 	public int getApplicationId() {
@@ -123,6 +134,7 @@ public class Client extends Model {
 		JSONObject jsonObject = new JSONObject();
 		try {
 			jsonObject.put("id", getId());
+			jsonObject.put("growthbeatClientId", getGrowthbeatClientId());
 			jsonObject.put("applicationId", getApplicationId());
 			jsonObject.put("code", getCode());
 			jsonObject.put("token", getToken());
@@ -148,6 +160,8 @@ public class Client extends Model {
 		try {
 			if (jsonObject.has("id"))
 				setId(jsonObject.getLong("id"));
+			if (jsonObject.has("growthbeatClientId"))
+				setGrowthbeatClientId(jsonObject.getString("growthbeatClientId"));
 			if (jsonObject.has("applicationId"))
 				setApplicationId(jsonObject.getInt("applicationId"));
 			if (jsonObject.has("code"))
