@@ -42,8 +42,7 @@ public class GrowthPushHttpClient extends BaseHttpClient {
 		} catch (UnsupportedEncodingException e) {
 			throw new GrowthPushException("Failed to encode request body.", e);
 		}
-		HttpRequest httpRequest = new HttpRequest().withMethod(method).withPath(api).withParameters(params).withHeaders(headers)
-				.withEntity(entity);
+		HttpRequest httpRequest = new HttpRequest().withMethod(method).withPath(api).withHeaders(headers).withEntity(entity);
 		HttpResponse httpResponse = super.request(httpRequest);
 		return fetchJSONObject(httpResponse);
 	}

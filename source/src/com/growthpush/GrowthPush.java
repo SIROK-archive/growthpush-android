@@ -65,7 +65,7 @@ public class GrowthPush {
 		this.secret = secret;
 		this.environment = environment;
 
-		this.logger.setSilent(debug);
+		this.logger.setSilent(!debug);
 		this.preference.setContext(context);
 
 		client = this.preference.fetchClient();
