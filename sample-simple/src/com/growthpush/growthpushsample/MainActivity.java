@@ -22,7 +22,6 @@ public class MainActivity extends Activity implements OnClickListener{
 				.initialize(getApplicationContext(), 1071, "Ou3DgCwmMS2tBocWXGKSnRUUTyVA078n",
 						BuildConfig.DEBUG ? Environment.development : Environment.production, true).register("955057365401");
 		GrowthPush.getInstance().trackEvent("Launch");
-
 	}
 
 	@Override
