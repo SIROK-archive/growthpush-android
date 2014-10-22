@@ -36,16 +36,19 @@ public class MainActivity extends Activity implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.button1:
+			//Event Post
 			GrowthPush.getInstance().trackEvent(
 					((EditText) findViewById(R.id.editText1)).getText().toString(),
 					((EditText) findViewById(R.id.editText2)).getText().toString());
 			break;
 		case R.id.button2:
+			//Tag Post
 			GrowthPush.getInstance().setTag(
 					((EditText) findViewById(R.id.editText3)).getText().toString(),
 					((EditText) findViewById(R.id.editText4)).getText().toString());
 			break;
 		case R.id.button3:
+			//setDeviceTags
 			GrowthPush.getInstance().setDeviceTags();
 			break;
 		default:

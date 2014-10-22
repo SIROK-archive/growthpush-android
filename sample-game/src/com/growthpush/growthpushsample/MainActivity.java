@@ -4,12 +4,9 @@ import java.util.Random;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,7 +26,6 @@ public class MainActivity extends Activity implements OnClickListener{
 						BuildConfig.DEBUG ? Environment.development : Environment.production, true).register("955057365401");
 		GrowthPush.getInstance().trackEvent("Launch");
 		GrowthPush.getInstance().setDeviceTags();
-		
 	}
 
 	@Override
