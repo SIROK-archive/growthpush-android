@@ -16,7 +16,7 @@ import com.growthpush.model.Environment;
 public class MainActivity extends Activity implements OnClickListener{
 
     private int[] myImageList = new int[]{R.drawable.rock, R.drawable.paper, R.drawable.scissors};
-    private String results[][] = {{"引き分け","負け","勝ち"},{"勝ち","引き分け","負け"},{"負け","勝ち","引き分け"}};
+    private String results[][] = {{"tie","loss","win"},{"win","tie","loss"},{"loss","win","tie"}};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
