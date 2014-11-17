@@ -1,15 +1,19 @@
 package com.growthpush;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import android.content.Context;
+import android.nfc.Tag;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
+import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
@@ -17,8 +21,6 @@ import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
-import com.growthpush.model.Event;
-import com.growthpush.model.Tag;
 
 public class GrowthPush {
 
@@ -166,36 +168,12 @@ public class GrowthPush {
 
 	}
 
-	public void trackEvent(final String name) {
-		trackEvent(name, null);
+	public void trackEvent(final String eventId) {
+		trackEvent(eventId, new HashMap<String, String>());
 	}
 
-	public void trackEvent(final String name, final String value) {
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				if (name == null) {
-					logger.warning("Event name cannot be null.");
-					return;
-				}
-
-				waitClientRegistration();
-
-				logger.info(String.format("Sending event ... (name: %s)", name));
-				try {
-					Event event = new Event(name, value).save(GrowthPush.this);
-					logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimeStamp()));
-				} catch (GrowthPushException e) {
-					logger.error(String.format("Sending event fail. %s", e.getMessage()));
-				}
-
-			}
-
-		}).start();
-
+	public void trackEvent(String eventId, Map<String, String> properties) {
+		GrowthAnalytics.getInstance().trackEvent(eventId, properties);
 	}
 
 	public void setTag(final String name) {
