@@ -10,6 +10,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
+import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
@@ -17,7 +18,6 @@ import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
-import com.growthpush.model.GrowthPushHttpClient;
 import com.growthpush.model.Tag;
 
 public class GrowthPush {
@@ -26,7 +26,7 @@ public class GrowthPush {
 
 	private static final GrowthPush instance = new GrowthPush();
 	private final Logger logger = new Logger("Growth Push");
-	private final GrowthPushHttpClient httpClient = new GrowthPushHttpClient();
+	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient();
 	private final Preference preference = new Preference();
 
 	private Client client = null;
@@ -278,7 +278,7 @@ public class GrowthPush {
 		return logger;
 	}
 
-	public GrowthPushHttpClient getHttpClient() {
+	public GrowthbeatHttpClient getHttpClient() {
 		return httpClient;
 	}
 
