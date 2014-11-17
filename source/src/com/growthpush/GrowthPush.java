@@ -23,10 +23,12 @@ import com.growthpush.model.Environment;
 
 public class GrowthPush {
 
-	public static final String BASE_URL = "https://api.growthpush.com/";
+	public static final String LOGGER_DEFAULT_TAG = "GrowthPush";
+	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthpush.com/";
+	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
 
 	private static final GrowthPush instance = new GrowthPush();
-	private final Logger logger = new Logger("GrowthPush");
+	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
 	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient();
 	private final Preference preference = new Preference();
 
@@ -42,7 +44,9 @@ public class GrowthPush {
 
 	private GrowthPush() {
 		super();
-		httpClient.setBaseUrl(BASE_URL);
+		logger.setTag(LOGGER_DEFAULT_TAG);
+		httpClient.setBaseUrl(HTTP_CLIENT_DEFAULT_BASE_URL);
+		preference.setFileName(PREFERENCE_DEFAULT_FILE_NAME);
 	}
 
 	public static GrowthPush getInstance() {
