@@ -103,11 +103,10 @@ public class GrowthPush {
 					com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
 					client = GrowthPush.this.preference.fetchClient();
 					// TODO Check applicationId
-					// if (client == null || client.getApplicationId() !=
-					// applicationId) {
-					// createClient(growthbeatClient.getId(), registrationId);
-					// return;
-					// }
+					if (client == null) {
+						createClient(growthbeatClient.getId(), registrationId);
+						return;
+					}
 
 					if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
 						updateClient(registrationId);
