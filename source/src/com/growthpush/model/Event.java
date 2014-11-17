@@ -6,6 +6,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.model.Model;
 import com.growthpush.GrowthPush;
 
 /**
@@ -37,9 +38,9 @@ public class Event extends Model {
 		params.put("name", name);
 		params.put("value", value);
 
-		JSONObject jsonObject = post("events", params);
-		if (jsonObject != null)
-			setJsonObject(jsonObject);
+		// JSONObject jsonObject = post("events", params);
+		// if (jsonObject != null)
+		// setJsonObject(jsonObject);
 
 		return this;
 
@@ -85,7 +86,8 @@ public class Event extends Model {
 		this.value = value;
 	}
 
-	private void setJsonObject(JSONObject jsonObject) {
+	@Override
+	public void setJsonObject(JSONObject jsonObject) {
 
 		try {
 			if (jsonObject.has("goalId"))
@@ -100,6 +102,11 @@ public class Event extends Model {
 			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
 
+	}
+
+	@Override
+	public JSONObject getJsonObject() {
+		return null;
 	}
 
 }

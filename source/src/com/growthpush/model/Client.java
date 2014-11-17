@@ -7,6 +7,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthpush.GrowthPush;
 
@@ -124,6 +125,7 @@ public class Client extends Model {
 		this.created = created;
 	}
 
+	@Override
 	public JSONObject getJsonObject() {
 
 		JSONObject jsonObject = new JSONObject();
@@ -147,6 +149,7 @@ public class Client extends Model {
 
 	}
 
+	@Override
 	public void setJsonObject(JSONObject jsonObject) {
 
 		if (jsonObject == null)
