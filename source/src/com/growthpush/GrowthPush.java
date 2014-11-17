@@ -12,6 +12,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
+import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
@@ -72,7 +73,7 @@ public class GrowthPush {
 			public void run() {
 
 				com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
-				client = GrowthPush.this.preference.fetchClient();
+				client = Client.load();
 
 				if (client != null && client.getGrowthbeatClientId() != null
 						&& !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
@@ -103,7 +104,7 @@ public class GrowthPush {
 					semaphore.acquire();
 
 					com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
-					client = GrowthPush.this.preference.fetchClient();
+					client = Client.load();
 					// TODO Check applicationId
 					if (client == null) {
 						createClient(growthbeatClient.getId(), registrationId);
@@ -134,12 +135,12 @@ public class GrowthPush {
 		try {
 
 			logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
-			client = Client.save(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+			client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
 			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
 
 			logger.info(String
 					.format("See https://growthpush.com/applications/%d/clients to check the client registration.", applicationId));
-			this.preference.saveClient(client);
+			Client.save(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
@@ -159,7 +160,7 @@ public class GrowthPush {
 			client = Client.update(client.getGrowthbeatClientId(), credentialId, registrationId, environment);
 			logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
-			this.preference.saveClient(client);
+			Client.save(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
@@ -245,7 +246,7 @@ public class GrowthPush {
 	private void clearClient() {
 
 		this.client = null;
-		this.preference.deleteClient();
+		Client.clear();
 
 	}
 
