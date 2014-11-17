@@ -7,7 +7,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import android.content.Context;
-import android.nfc.Tag;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
@@ -172,45 +171,16 @@ public class GrowthPush {
 		trackEvent(eventId, new HashMap<String, String>());
 	}
 
-	public void trackEvent(String eventId, Map<String, String> properties) {
+	public void trackEvent(final String eventId, Map<String, String> properties) {
 		GrowthAnalytics.getInstance().trackEvent(eventId, properties);
 	}
 
-	public void setTag(final String name) {
-		setTag(name, null);
+	public void setTag(final String tagId) {
+		setTag(tagId, null);
 	}
 
-	public void setTag(final String name, final String value) {
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				if (name == null) {
-					logger.warning("Tag name cannot be null.");
-					return;
-				}
-
-				Tag tag = GrowthPush.this.preference.fetchTag(name);
-				if (tag != null && value.equalsIgnoreCase(tag.getValue()))
-					return;
-
-				waitClientRegistration();
-
-				logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
-				try {
-					Tag createdTag = new Tag(name, value).save(GrowthPush.this);
-					logger.info(String.format("Sending tag success"));
-					GrowthPush.this.preference.saveTag(createdTag);
-				} catch (GrowthPushException e) {
-					logger.error(String.format("Sending tag fail. %s", e.getMessage()));
-				}
-
-			}
-
-		}).start();
-
+	public void setTag(final String tagId, final String value) {
+		GrowthAnalytics.getInstance().setTag(tagId, value);
 	}
 
 	public void setDeviceTags() {
