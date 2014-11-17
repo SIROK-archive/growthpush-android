@@ -48,17 +48,16 @@ public class Client extends Model {
 
 	}
 
-	public Client update() {
+	public static Client update(String clientId, String credentialId, String token, Environment environment) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("code", code);
+		params.put("credentialId", credentialId);
 		params.put("token", token);
 		params.put("environment", environment.toString());
 
-		JSONObject jsonObject = put("clients/" + id, params);
-		setJsonObject(jsonObject);
+		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("clients/" + clientId, params);
 
-		return this;
+		return new Client(jsonObject);
 	}
 
 	public long getId() {
