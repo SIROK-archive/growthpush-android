@@ -228,21 +228,6 @@ public class GrowthPush {
 		return preference;
 	}
 
-	public Client getClient() {
-		return client;
-	}
-
-	private void waitClientRegistration() {
-
-		if (client == null) {
-			try {
-				latch.await();
-			} catch (InterruptedException e) {
-			}
-		}
-
-	}
-
 	private void clearClient() {
 
 		this.client = null;
