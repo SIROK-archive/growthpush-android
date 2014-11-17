@@ -245,7 +245,6 @@ public class GrowthPush {
 
 		this.client = null;
 		this.preference.deleteClient();
-		this.preference.deleteTags();
 
 	}
 
