@@ -35,7 +35,7 @@ public class GrowthPush {
 	private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
 
 	private Context context = null;
-	private int applicationId;
+	private String applicationId;
 	private String credentialId;
 	private Environment environment = null;
 
@@ -57,8 +57,7 @@ public class GrowthPush {
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 
 		this.context = context;
-		// TODO migrate to new API
-		this.applicationId = 0;
+		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 		this.environment = environment;
 
@@ -103,10 +102,12 @@ public class GrowthPush {
 
 					com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
 					client = GrowthPush.this.preference.fetchClient();
-					if (client == null || client.getApplicationId() != applicationId) {
-						createClient(growthbeatClient.getId(), registrationId);
-						return;
-					}
+					// TODO Check applicationId
+					// if (client == null || client.getApplicationId() !=
+					// applicationId) {
+					// createClient(growthbeatClient.getId(), registrationId);
+					// return;
+					// }
 
 					if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
 						updateClient(registrationId);
@@ -132,7 +133,7 @@ public class GrowthPush {
 		try {
 
 			logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
-			client = new Client(growthbeatClientId, registrationId, environment).save(GrowthPush.this);
+			client = Client.save(growthbeatClientId, applicationId, credentialId, registrationId, environment);
 			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
 
 			logger.info(String
@@ -154,7 +155,7 @@ public class GrowthPush {
 					environment));
 			client.setToken(registrationId);
 			client.setEnvironment(environment);
-			client = client.update();
+			client = Client.update(client.getGrowthbeatClientId(), credentialId, registrationId, environment);
 			logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
 			this.preference.saveClient(client);
@@ -264,14 +265,6 @@ public class GrowthPush {
 
 	public ReceiveHandler getReceiveHandler() {
 		return receiveHandler;
-	}
-
-	public int getApplicationId() {
-		return applicationId;
-	}
-
-	public String getCredentialId() {
-		return credentialId;
 	}
 
 	public Logger getLogger() {
