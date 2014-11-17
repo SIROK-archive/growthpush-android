@@ -29,8 +29,8 @@ public class GrowthPush {
 
 	private static final GrowthPush instance = new GrowthPush();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
-	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient();
-	private final Preference preference = new Preference();
+	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL);
+	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
 	private Client client = null;
 	private Semaphore semaphore = new Semaphore(1);
@@ -44,9 +44,6 @@ public class GrowthPush {
 
 	private GrowthPush() {
 		super();
-		logger.setTag(LOGGER_DEFAULT_TAG);
-		httpClient.setBaseUrl(HTTP_CLIENT_DEFAULT_BASE_URL);
-		preference.setFileName(PREFERENCE_DEFAULT_FILE_NAME);
 	}
 
 	public static GrowthPush getInstance() {

@@ -6,12 +6,15 @@ import com.growthpush.model.Client;
 
 public class Preference extends com.growthbeat.Preference {
 
-	private static final String FILE_NAME = "growthpush-preferences";
 	private static final String CLIENT_KEY = "client";
 
 	public Preference() {
 		super();
-		setFileName(FILE_NAME);
+	}
+
+	public Preference(String fileName) {
+		this();
+		setFileName(fileName);
 	}
 
 	public Client fetchClient() {
