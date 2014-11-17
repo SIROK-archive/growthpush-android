@@ -140,7 +140,7 @@ public class Client extends Model {
 			if (getStatus() != null)
 				jsonObject.put("status", getStatus().toString());
 			if (getCreated() != null)
-				jsonObject.put("created", DateUtils.format(getCreated(), "yyyy-MM-dd HH:mm:ss"));
+				jsonObject.put("created", DateUtils.formatToDateTimeString(getCreated()));
 		} catch (JSONException e) {
 			return null;
 		}
@@ -171,7 +171,7 @@ public class Client extends Model {
 			if (jsonObject.has("status"))
 				setStatus(ClientStatus.valueOf(jsonObject.getString("status")));
 			if (jsonObject.has("created"))
-				setCreated(DateUtils.parse(jsonObject.getString("created"), "yyyy-MM-dd HH:mm:ss"));
+				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
