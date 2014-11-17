@@ -28,27 +28,23 @@ public class Client extends Model {
 		super();
 	}
 
-	public Client(String growthbeatClientId, String token, Environment environment) {
-		this();
-		setGrowthbeatClientId(growthbeatClientId);
-		setToken(token);
-		setEnvironment(environment);
+	public Client(JSONObject jsonObject) {
+		super();
+		setJsonObject(jsonObject);
 	}
 
-	public Client save(GrowthPush growthPush) {
+	public static Client save(String clientId, String applicationId, String credentialId, String token, Environment environment) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("growthbeatClientId", growthbeatClientId);
-		params.put("applicationId", growthPush.getApplicationId());
-		params.put("credentialId", growthPush.getCredentialId());
+		params.put("clientId", clientId);
+		params.put("applicationId", applicationId);
+		params.put("credentialId", credentialId);
 		params.put("token", token);
 		params.put("environment", environment.toString());
 		params.put("os", "android");
-		JSONObject jsonObject = post("clients", params);
-		if (jsonObject != null)
-			setJsonObject(jsonObject);
+		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("3/clients", params);
 
-		return this;
+		return new Client(jsonObject);
 
 	}
 
