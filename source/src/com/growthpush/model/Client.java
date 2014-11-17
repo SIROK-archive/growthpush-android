@@ -22,7 +22,7 @@ public class Client extends Model {
 	private String code;
 	private String token;
 	private Environment environment;
-	private ClientStatus status;
+	private Status status;
 	private Date created;
 
 	public Client() {
@@ -135,11 +135,11 @@ public class Client extends Model {
 		this.environment = environment;
 	}
 
-	public ClientStatus getStatus() {
+	public Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(ClientStatus status) {
+	public void setStatus(Status status) {
 		this.status = status;
 	}
 
@@ -195,13 +195,17 @@ public class Client extends Model {
 			if (jsonObject.has("environment"))
 				setEnvironment(Environment.valueOf(jsonObject.getString("environment")));
 			if (jsonObject.has("status"))
-				setStatus(ClientStatus.valueOf(jsonObject.getString("status")));
+				setStatus(Status.valueOf(jsonObject.getString("status")));
 			if (jsonObject.has("created"))
 				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
 
+	}
+
+	public static enum Status {
+		unknown, validating, active, inactive, invalid
 	}
 
 }
