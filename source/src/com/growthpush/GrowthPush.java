@@ -25,7 +25,7 @@ public class GrowthPush {
 	public static final String BASE_URL = "https://api.growthpush.com/";
 
 	private static final GrowthPush instance = new GrowthPush();
-	private final Logger logger = new Logger("Growth Push");
+	private final Logger logger = new Logger("GrowthPush");
 	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient();
 	private final Preference preference = new Preference();
 
