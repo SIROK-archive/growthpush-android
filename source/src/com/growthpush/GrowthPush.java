@@ -38,7 +38,6 @@ public class GrowthPush {
 	private CountDownLatch latch = new CountDownLatch(1);
 	private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
 
-	private Context context = null;
 	private String applicationId;
 	private String credentialId;
 	private Environment environment = null;
@@ -54,18 +53,14 @@ public class GrowthPush {
 	public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment,
 			final String senderId) {
 
-		if (this.context != null)
-			return;
-
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 
-		this.context = context;
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 		this.environment = environment;
 
 		// TODO set logger configuration
-		this.preference.setContext(context);
+		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
 		new Thread(new Runnable() {
 
@@ -192,15 +187,15 @@ public class GrowthPush {
 			@Override
 			public void run() {
 
-				if (context == null)
+				if (GrowthbeatCore.getInstance().getContext() == null)
 					throw new IllegalStateException("GrowthPush is not initialized.");
 
 				setTag("Device", DeviceUtils.getModel());
 				setTag("OS", "Android " + DeviceUtils.getOsVersion());
 				setTag("Language", DeviceUtils.getLanguage());
 				setTag("Time Zone", DeviceUtils.getTimeZone());
-				setTag("Version", AppUtils.getaAppVersion(context));
-				setTag("Build", AppUtils.getAppBuild(context));
+				setTag("Version", AppUtils.getaAppVersion(GrowthbeatCore.getInstance().getContext()));
+				setTag("Build", AppUtils.getAppBuild(GrowthbeatCore.getInstance().getContext()));
 
 			}
 
