@@ -64,7 +64,6 @@ public class Client extends Model {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("clientId", clientId);
-		params.put("applicationId", applicationId);
 		params.put("credentialId", credentialId);
 		params.put("token", token);
 		params.put("environment", environment.toString());
