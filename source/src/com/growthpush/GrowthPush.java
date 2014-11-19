@@ -1,8 +1,6 @@
 package com.growthpush;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -13,10 +11,7 @@ import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
-import com.growthbeat.utils.AppUtils;
-import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
@@ -161,45 +156,6 @@ public class GrowthPush {
 		} catch (GrowthPushException e) {
 			logger.error(String.format("Updating client fail. %s", e.getMessage()));
 		}
-
-	}
-
-	public void trackEvent(final String eventId, boolean once) {
-		trackEvent(eventId, new HashMap<String, String>(), once);
-	}
-
-	public void trackEvent(final String eventId, Map<String, String> properties, boolean once) {
-		GrowthAnalytics.getInstance().trackEvent(eventId, properties, once);
-	}
-
-	public void setTag(final String tagId) {
-		setTag(tagId, null);
-	}
-
-	public void setTag(final String tagId, final String value) {
-		GrowthAnalytics.getInstance().setTag(tagId, value);
-	}
-
-	public void setDeviceTags() {
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				if (GrowthbeatCore.getInstance().getContext() == null)
-					throw new IllegalStateException("GrowthPush is not initialized.");
-
-				setTag("Device", DeviceUtils.getModel());
-				setTag("OS", "Android " + DeviceUtils.getOsVersion());
-				setTag("Language", DeviceUtils.getLanguage());
-				setTag("Time Zone", DeviceUtils.getTimeZone());
-				setTag("Version", AppUtils.getaAppVersion(GrowthbeatCore.getInstance().getContext()));
-				setTag("Build", AppUtils.getAppBuild(GrowthbeatCore.getInstance().getContext()));
-
-			}
-
-		}).start();
 
 	}
 
