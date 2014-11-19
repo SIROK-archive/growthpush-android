@@ -164,12 +164,12 @@ public class GrowthPush {
 
 	}
 
-	public void trackEvent(final String eventId) {
-		trackEvent(eventId, new HashMap<String, String>());
+	public void trackEvent(final String eventId, boolean once) {
+		trackEvent(eventId, new HashMap<String, String>(), once);
 	}
 
-	public void trackEvent(final String eventId, Map<String, String> properties) {
-		GrowthAnalytics.getInstance().trackEvent(eventId, properties);
+	public void trackEvent(final String eventId, Map<String, String> properties, boolean once) {
+		GrowthAnalytics.getInstance().trackEvent(eventId, properties, once);
 	}
 
 	public void setTag(final String tagId) {
