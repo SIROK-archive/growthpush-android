@@ -82,7 +82,7 @@ public class Client extends Model {
 		params.put("token", token);
 		params.put("environment", environment.toString());
 
-		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("clients/" + clientId, params);
+		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("3/clients/" + clientId, params);
 
 		return new Client(jsonObject);
 	}
