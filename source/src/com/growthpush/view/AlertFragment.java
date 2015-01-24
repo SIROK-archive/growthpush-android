@@ -19,7 +19,7 @@ import android.view.KeyEvent;
  */
 public class AlertFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
-	private DialogCallback listener;
+	protected DialogCallback listener;
 
 	public AlertFragment() {
 		super();
@@ -36,7 +36,7 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 
 	}
 
-	private Dialog generateAlertDialog() {
+	protected Dialog generateAlertDialog() {
 
 		PackageManager packageManager = getActivity().getPackageManager();
 		ApplicationInfo applicationInfo = null;
