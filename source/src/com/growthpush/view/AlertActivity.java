@@ -20,9 +20,9 @@ import com.growthpush.utils.SystemUtils;
  */
 public class AlertActivity extends FragmentActivity implements DialogCallback {
 
-	private static final int WAKE_LOCK_TIMEROUT = 10 * 1000;
+	protected static final int WAKE_LOCK_TIMEROUT = 10 * 1000;
 
-	private static DefaultReceiveHandler.Callback sharedCallback = null;
+	protected static DefaultReceiveHandler.Callback sharedCallback = null;
 
 	public static void setSharedCallback(DefaultReceiveHandler.Callback sharedCallback) {
 		AlertActivity.sharedCallback = sharedCallback;
@@ -60,7 +60,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 
 	}
 
-	private void showDialog() {
+	protected void showDialog() {
 
 		manageKeyguard();
 		managePower();
@@ -84,7 +84,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 
 	}
 
-	private void manageKeyguard() {
+	protected void manageKeyguard() {
 
 		KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 		if (!keyguardManager.inKeyguardRestrictedInputMode())
@@ -106,7 +106,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 	}
 
 	@SuppressWarnings("deprecation")
-	private void managePower() {
+	protected void managePower() {
 
 		PowerManager powerManager = SystemUtils.getPowerManager(getApplicationContext());
 		if (powerManager == null)
