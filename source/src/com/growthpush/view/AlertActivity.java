@@ -12,8 +12,10 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.growthpush.GrowthPush;
+import com.growthpush.handler.BaseReceiveHandler;
 import com.growthpush.handler.DefaultReceiveHandler;
-import com.growthpush.utils.SystemUtils;
+import com.growthpush.handler.ReceiveHandler;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
@@ -44,8 +46,13 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 		if (showDialog) {
 			showDialog();
 		} else {
-			if (sharedCallback != null)
-				sharedCallback.onOpen(this, getIntent());
+			ReceiveHandler receiveHandler = GrowthPush.getInstance().getReceiveHandler();
+			if (receiveHandler != null && receiveHandler instanceof BaseReceiveHandler) {
+				BaseReceiveHandler baseReceiveHandler = (BaseReceiveHandler) GrowthPush.getInstance().getReceiveHandler();
+				if (baseReceiveHandler.getCallback() != null) {
+					baseReceiveHandler.getCallback().onOpen(this, getIntent());
+				}
+			}
 			finish();
 		}
 
