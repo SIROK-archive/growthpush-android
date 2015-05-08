@@ -41,7 +41,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		alertIntent.putExtra("showDialog", true);
 		alertIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-		AlertActivity.setSharedCallback(callback);
 		context.startActivity(alertIntent);
 
 	}
@@ -78,7 +77,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		intent.putExtra("showDialog", false);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-		AlertActivity.setSharedCallback(callback);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
