@@ -13,6 +13,7 @@ public class MainApplication extends Application {
 
 	@Override
 	public void onCreate() {
+		super.onCreate();
 
 		((DefaultReceiveHandler) GrowthPush.getInstance().getReceiveHandler()).setCallback(new Callback() {
 			@Override
@@ -32,5 +33,6 @@ public class MainApplication extends Application {
 
 			}
 		});
+
 	}
 }
