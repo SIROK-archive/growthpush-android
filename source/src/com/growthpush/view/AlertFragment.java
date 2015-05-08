@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
@@ -46,7 +47,7 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 			return null;
 		}
 
-		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(packageManager.getApplicationIcon(applicationInfo))
+		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(applicationInfo.icon)
 				.setTitle(packageManager.getApplicationLabel(applicationInfo)).setMessage(getArguments().getString("message"))
 				.setPositiveButton("OK", this).setNegativeButton("Cancel", this).create();
 		dialog.setOnKeyListener(new OnKeyListener() {

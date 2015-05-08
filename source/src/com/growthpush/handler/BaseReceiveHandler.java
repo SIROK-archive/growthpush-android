@@ -63,7 +63,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		String title = "";
 		try {
 			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
-			icon = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0).icon;
+			icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
 			title = packageManager.getApplicationLabel(applicationInfo).toString();
 		} catch (NameNotFoundException e) {
 		}
