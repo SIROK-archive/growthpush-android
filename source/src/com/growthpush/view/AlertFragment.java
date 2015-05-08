@@ -46,7 +46,7 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 			return null;
 		}
 
-		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(packageManager.getApplicationIcon(applicationInfo))
+		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(applicationInfo.icon)
 				.setTitle(packageManager.getApplicationLabel(applicationInfo)).setMessage(getArguments().getString("message"))
 				.setPositiveButton("OK", this).setNegativeButton("Cancel", this).create();
 		dialog.setOnKeyListener(new OnKeyListener() {
