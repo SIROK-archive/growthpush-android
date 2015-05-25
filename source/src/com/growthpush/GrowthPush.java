@@ -7,32 +7,37 @@ import java.util.concurrent.Semaphore;
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.growthbeat.CatchableThread;
+import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Logger;
+import com.growthbeat.Preference;
+import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
-import com.growthpush.model.Event;
-import com.growthpush.model.Tag;
-import com.growthpush.utils.DeviceUtils;
 
-/**
- * Created by Shigeru Ogawa on 13/08/12.
- */
 public class GrowthPush {
 
-	public static final String BASE_URL = "https://api.growthpush.com/";
+	public static final String LOGGER_DEFAULT_TAG = "GrowthPush";
+	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthpush.com/";
+	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
+	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
+	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
 
 	private static final GrowthPush instance = new GrowthPush();
+	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
+	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
+			HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
+	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
-	private Logger logger = new Logger();
 	private Client client = null;
 	private Semaphore semaphore = new Semaphore(1);
 	private CountDownLatch latch = new CountDownLatch(1);
 	private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
 
-	private Context context = null;
-	private int applicationId;
-	private String secret;
+	private String applicationId;
+	private String credentialId;
 	private Environment environment = null;
 
 	private GrowthPush() {
@@ -43,44 +48,28 @@ public class GrowthPush {
 		return instance;
 	}
 
-	public GrowthPush initialize(Context context, int applicationId, String secret) {
-		return initialize(context, applicationId, secret, Environment.production, false);
-	}
+	public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment,
+			final String senderId) {
 
-	public GrowthPush initialize(Context context, int applicationId, String secret, Environment environment) {
-		return initialize(context, applicationId, secret, environment, false);
-	}
+		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 
-	public GrowthPush initialize(Context context, int applicationId, String secret, Environment environment, boolean debug) {
-
-		if (this.context != null)
-			return this;
-
-		this.context = context;
 		this.applicationId = applicationId;
-		this.secret = secret;
+		this.credentialId = credentialId;
 		this.environment = environment;
 
-		this.logger.setDebug(debug);
-		Preference.getInstance().setContext(context);
-
-		client = Preference.getInstance().fetchClient();
-		if (client != null && client.getApplicationId() != applicationId)
-			this.clearClient();
-
-		return this;
-
-	}
-
-	public GrowthPush register(final String senderId) {
+		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 
-				if (context == null)
-					throw new IllegalStateException("GrowthPush is not initialized.");
+				com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+				client = Client.load();
+
+				if (client != null && client.getGrowthbeatClientId() != null
+						&& !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
+					GrowthPush.this.clearClient();
 
 				GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 				try {
@@ -92,8 +81,6 @@ public class GrowthPush {
 			}
 
 		}).start();
-
-		return this;
 
 	}
 
@@ -108,9 +95,11 @@ public class GrowthPush {
 
 					semaphore.acquire();
 
-					client = Preference.getInstance().fetchClient();
-					if (client == null || client.getApplicationId() != applicationId) {
-						createClient(registrationId);
+					com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+					client = Client.load();
+					// TODO Check applicationId
+					if (client == null) {
+						createClient(growthbeatClient.getId(), registrationId);
 						return;
 					}
 
@@ -133,17 +122,17 @@ public class GrowthPush {
 
 	}
 
-	private void createClient(final String registrationId) {
+	private void createClient(final String growthbeatClientId, final String registrationId) {
 
 		try {
 
 			logger.info(String.format("Registering client... (applicationId: %d, environment: %s)", applicationId, environment));
-			GrowthPush.this.client = new Client(registrationId, environment).save(GrowthPush.this);
-			logger.info(String.format("Registering client success (clientId: %d)", GrowthPush.this.client.getId()));
+			client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
 
 			logger.info(String
 					.format("See https://growthpush.com/applications/%d/clients to check the client registration.", applicationId));
-			Preference.getInstance().saveClient(GrowthPush.this.client);
+			Client.save(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
@@ -158,109 +147,17 @@ public class GrowthPush {
 
 			logger.info(String.format("Updating client... (applicationId: %d, token: %s, environment: %s)", applicationId, registrationId,
 					environment));
-			GrowthPush.this.client.setToken(registrationId);
-			GrowthPush.this.client.setEnvironment(environment);
-			GrowthPush.this.client = GrowthPush.this.client.update();
-			logger.info(String.format("Update client success (clientId: %d)", GrowthPush.this.client.getId()));
+			client.setToken(registrationId);
+			client.setEnvironment(environment);
+			client = Client.update(client.getGrowthbeatClientId(), credentialId, registrationId, environment);
+			logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
-			Preference.getInstance().saveClient(GrowthPush.this.client);
+			Client.save(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
 			logger.error(String.format("Updating client fail. %s", e.getMessage()));
 		}
-
-	}
-
-	public void trackEvent(final String name) {
-		trackEvent(name, null);
-	}
-
-	public void trackEvent(final String name, final String value) {
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				if (name == null) {
-					logger.warning("Event name cannot be null.");
-					return;
-				}
-
-				waitClientRegistration();
-
-				logger.info(String.format("Sending event ... (name: %s)", name));
-				try {
-					Event event = new Event(name, value).save(GrowthPush.this);
-					logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimeStamp()));
-				} catch (GrowthPushException e) {
-					logger.error(String.format("Sending event fail. %s", e.getMessage()));
-				}
-
-			}
-
-		}).start();
-
-	}
-
-	public void setTag(final String name) {
-		setTag(name, null);
-	}
-
-	public void setTag(final String name, final String value) {
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				if (name == null) {
-					logger.warning("Tag name cannot be null.");
-					return;
-				}
-
-				Tag tag = Preference.getInstance().fetchTag(name);
-				if (tag != null && value.equalsIgnoreCase(tag.getValue()))
-					return;
-
-				waitClientRegistration();
-
-				logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
-				try {
-					Tag createdTag = new Tag(name, value).save(GrowthPush.this);
-					logger.info(String.format("Sending tag success"));
-					Preference.getInstance().saveTag(createdTag);
-				} catch (GrowthPushException e) {
-					logger.error(String.format("Sending tag fail. %s", e.getMessage()));
-				}
-
-			}
-
-		}).start();
-
-	}
-
-	public void setDeviceTags() {
-
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				if (context == null)
-					throw new IllegalStateException("GrowthPush is not initialized.");
-
-				setTag("Device", DeviceUtils.getDevice());
-				setTag("OS", DeviceUtils.getOs());
-				setTag("Language", DeviceUtils.getLanguage());
-				setTag("Time Zone", DeviceUtils.getTimeZone());
-				setTag("Version", DeviceUtils.getVersion(context));
-				setTag("Build", DeviceUtils.getBuild(context));
-
-			}
-
-		}).start();
 
 	}
 
@@ -272,38 +169,39 @@ public class GrowthPush {
 		return receiveHandler;
 	}
 
-	public int getApplicationId() {
-		return applicationId;
-	}
-
-	public String getSecret() {
-		return secret;
-	}
-
 	public Logger getLogger() {
 		return logger;
 	}
 
-	public Client getClient() {
-		return client;
+	public GrowthbeatHttpClient getHttpClient() {
+		return httpClient;
 	}
 
-	private void waitClientRegistration() {
-
-		if (client == null) {
-			try {
-				latch.await();
-			} catch (InterruptedException e) {
-			}
-		}
-
+	public Preference getPreference() {
+		return preference;
 	}
 
 	private void clearClient() {
 
 		this.client = null;
-		Preference.getInstance().deleteClient();
-		Preference.getInstance().deleteTags();
+		Client.clear();
+
+	}
+
+	private static class Thread extends CatchableThread {
+
+		public Thread(Runnable runnable) {
+			super(runnable);
+		}
+
+		@Override
+		public void uncaughtException(java.lang.Thread thread, Throwable e) {
+			String message = "Uncaught Exception: " + e.getClass().getName();
+			if (e.getMessage() != null)
+				message += "; " + e.getMessage();
+			GrowthPush.getInstance().getLogger().warning(message);
+			e.printStackTrace();
+		}
 
 	}
 
