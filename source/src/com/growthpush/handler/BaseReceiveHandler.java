@@ -11,7 +11,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
-import com.growthbeat.utils.PermissionUtils;
+import com.growthpush.utils.PermissionUtils;
 import com.growthpush.view.AlertActivity;
 
 public class BaseReceiveHandler implements ReceiveHandler {

@@ -1,5 +1,7 @@
 package com.growthpush.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,8 +9,6 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.growthbeat.model.Model;
-import com.growthbeat.utils.DateUtils;
 import com.growthpush.GrowthPush;
 
 /**
@@ -17,73 +17,50 @@ import com.growthpush.GrowthPush;
 public class Client extends Model {
 
 	private long id;
-	private String growthbeatClientId;
 	private int applicationId;
 	private String code;
 	private String token;
 	private Environment environment;
-	private Status status;
+	private ClientStatus status;
 	private Date created;
 
 	public Client() {
 		super();
 	}
 
-	public Client(JSONObject jsonObject) {
-		super();
-		setJsonObject(jsonObject);
+	public Client(String token, Environment environment) {
+		this();
+		setToken(token);
+		setEnvironment(environment);
 	}
 
-	public static Client load() {
-
-		JSONObject clientJsonObject = GrowthPush.getInstance().getPreference().get(Client.class.getName());
-		if (clientJsonObject == null)
-			return null;
-
-		Client client = new Client();
-		client.setJsonObject(clientJsonObject);
-
-		return client;
-
-	}
-
-	public static synchronized void save(Client client) {
-
-		if (client == null)
-			throw new IllegalArgumentException("Argument client cannot be null.");
-
-		GrowthPush.getInstance().getPreference().save(Client.class.getName(), client.getJsonObject());
-
-	}
-
-	public static void clear() {
-		GrowthPush.getInstance().getPreference().remove(Client.class.getName());
-	}
-
-	public static Client create(String clientId, String applicationId, String credentialId, String token, Environment environment) {
+	public Client save(GrowthPush growthPush) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("clientId", clientId);
-		params.put("credentialId", credentialId);
+		params.put("applicationId", growthPush.getApplicationId());
+		params.put("secret", growthPush.getSecret());
 		params.put("token", token);
 		params.put("environment", environment.toString());
 		params.put("os", "android");
-		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("3/clients", params);
+		JSONObject jsonObject = post("clients", params);
+		if (jsonObject != null)
+			setJsonObject(jsonObject);
 
-		return new Client(jsonObject);
+		return this;
 
 	}
 
-	public static Client update(String clientId, String credentialId, String token, Environment environment) {
+	public Client update() {
 
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("credentialId", credentialId);
+		params.put("code", code);
 		params.put("token", token);
 		params.put("environment", environment.toString());
 
-		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("3/clients/" + clientId, params);
+		JSONObject jsonObject = put("clients/" + id, params);
+		setJsonObject(jsonObject);
 
-		return new Client(jsonObject);
+		return this;
 	}
 
 	public long getId() {
@@ -92,14 +69,6 @@ public class Client extends Model {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public String getGrowthbeatClientId() {
-		return growthbeatClientId;
-	}
-
-	public void setGrowthbeatClientId(String growthbeatClientId) {
-		this.growthbeatClientId = growthbeatClientId;
 	}
 
 	public int getApplicationId() {
@@ -134,11 +103,11 @@ public class Client extends Model {
 		this.environment = environment;
 	}
 
-	public Status getStatus() {
+	public ClientStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(ClientStatus status) {
 		this.status = status;
 	}
 
@@ -150,13 +119,11 @@ public class Client extends Model {
 		this.created = created;
 	}
 
-	@Override
 	public JSONObject getJsonObject() {
 
 		JSONObject jsonObject = new JSONObject();
 		try {
 			jsonObject.put("id", getId());
-			jsonObject.put("growthbeatClientId", getGrowthbeatClientId());
 			jsonObject.put("applicationId", getApplicationId());
 			jsonObject.put("code", getCode());
 			jsonObject.put("token", getToken());
@@ -165,7 +132,7 @@ public class Client extends Model {
 			if (getStatus() != null)
 				jsonObject.put("status", getStatus().toString());
 			if (getCreated() != null)
-				jsonObject.put("created", DateUtils.formatToDateTimeString(getCreated()));
+				jsonObject.put("created", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(getCreated()));
 		} catch (JSONException e) {
 			return null;
 		}
@@ -174,7 +141,6 @@ public class Client extends Model {
 
 	}
 
-	@Override
 	public void setJsonObject(JSONObject jsonObject) {
 
 		if (jsonObject == null)
@@ -183,8 +149,6 @@ public class Client extends Model {
 		try {
 			if (jsonObject.has("id"))
 				setId(jsonObject.getLong("id"));
-			if (jsonObject.has("growthbeatClientId"))
-				setGrowthbeatClientId(jsonObject.getString("growthbeatClientId"));
 			if (jsonObject.has("applicationId"))
 				setApplicationId(jsonObject.getInt("applicationId"));
 			if (jsonObject.has("code"))
@@ -194,17 +158,17 @@ public class Client extends Model {
 			if (jsonObject.has("environment"))
 				setEnvironment(Environment.valueOf(jsonObject.getString("environment")));
 			if (jsonObject.has("status"))
-				setStatus(Status.valueOf(jsonObject.getString("status")));
-			if (jsonObject.has("created"))
-				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
+				setStatus(ClientStatus.valueOf(jsonObject.getString("status")));
+			if (jsonObject.has("created")) {
+				try {
+					setCreated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(jsonObject.getString("created")));
+				} catch (ParseException e) {
+				}
+			}
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
 
-	}
-
-	public static enum Status {
-		unknown, validating, active, inactive, invalid
 	}
 
 }

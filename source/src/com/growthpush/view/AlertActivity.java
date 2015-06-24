@@ -1,6 +1,5 @@
 package com.growthpush.view;
 
-import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -13,10 +12,10 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.growthbeat.utils.SystemServiceUtils;
 import com.growthpush.GrowthPush;
 import com.growthpush.handler.BaseReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
+import com.growthpush.utils.SystemUtils;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
@@ -78,7 +77,6 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 
 	}
 
-	@SuppressLint("NewApi")
 	protected void manageKeyguard() {
 
 		KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
@@ -103,7 +101,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 	@SuppressWarnings("deprecation")
 	protected void managePower() {
 
-		PowerManager powerManager = SystemServiceUtils.getPowerManager(getApplicationContext());
+		PowerManager powerManager = SystemUtils.getPowerManager(getApplicationContext());
 		if (powerManager == null)
 			return;
 
