@@ -5,7 +5,7 @@ import android.content.Intent;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-**
+/**
  * Created by Shigeru Ogawa on 13/08/09.
  */
 public class BroadcastReceiver extends android.content.BroadcastReceiver {
