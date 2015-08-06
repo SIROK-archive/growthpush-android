@@ -33,7 +33,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 		setTheme(android.R.style.Theme_Translucent);
 
 		String message = getIntent().getExtras().getString("message");
-		if (message == null || message.length() > 0 || message.equals("")) {
+		if (message == null || message.length() == 0 || message.equals("")) {
 			finish();
 			return;
 		}
