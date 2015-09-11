@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.growthpush.utils.PermissionUtils;
 import com.growthpush.view.AlertActivity;
+import com.growthpush.view.DialogType;
 
 public class BaseReceiveHandler implements ReceiveHandler {
 
@@ -36,17 +37,32 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
-		String message = intent.getExtras().getString("message");
-		if (message == null || message.length() == 0 || message.equals(""))
+		if (!intent.getExtras().containsKey("message") && !intent.getExtras().containsKey("dialogType"))
+			return;
+
+		if (intent.getExtras().containsKey("message")) {
+			String message = intent.getExtras().getString("message");
+			if (message == null || message.length() <= 0 || message.equals(""))
+				return;
+		}
+
+		DialogType dialogType = DialogType.none;
+		if (intent.getExtras().containsKey("dialogType")) {
+			try {
+				dialogType = DialogType.valueOf(intent.getExtras().getString("dialogType"));
+			} catch (IllegalArgumentException e) {
+			} catch (NullPointerException e) {
+			}
+		}
+
+		if (dialogType == DialogType.none)
 			return;
 
 		Intent alertIntent = new Intent(context, AlertActivity.class);
 		alertIntent.putExtras(intent.getExtras());
-		alertIntent.putExtra("showDialog", true);
 		alertIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		context.startActivity(alertIntent);
-
 	}
 
 	protected void addNotification(Context context, Intent intent) {
