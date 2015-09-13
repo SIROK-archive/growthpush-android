@@ -1,5 +1,6 @@
 package com.growthpush.view;
 
+import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -38,14 +39,26 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 			return;
 		}
 
-		boolean showDialog = getIntent().getExtras().getBoolean("showDialog");
-		if (showDialog) {
+		DialogType dialogType = DialogType.none;
+		if (getIntent().getExtras().containsKey("dialogType")) {
+			try {
+				dialogType = DialogType.valueOf(getIntent().getExtras().getString("dialogType"));
+			} catch (IllegalArgumentException e) {
+			} catch (NullPointerException e) {
+			}
+		}
+
+		switch (dialogType) {
+		case plain:
 			showDialog();
-		} else {
+			break;
+
+		default:
 			if (getCallback() != null) {
 				getCallback().onOpen(this, getIntent());
 			}
 			finish();
+			break;
 		}
 
 	}
@@ -83,6 +96,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 
 	}
 
+	@SuppressLint("NewApi")
 	protected void manageKeyguard() {
 
 		KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);

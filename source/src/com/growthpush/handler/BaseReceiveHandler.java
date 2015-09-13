@@ -11,8 +11,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
+import com.growthpush.GrowthPush;
 import com.growthpush.utils.PermissionUtils;
 import com.growthpush.view.AlertActivity;
+import com.growthpush.view.DialogType;
 
 public class BaseReceiveHandler implements ReceiveHandler {
 
@@ -36,8 +38,22 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
-		String message = intent.getExtras().getString("message");
-		if (message == null || message.length() == 0 || message.equals(""))
+		if (intent.getExtras().containsKey("message")) {
+			String message = intent.getExtras().getString("message");
+			if (message == null || message.length() <= 0 || message.equals(""))
+				return;
+		}
+
+		DialogType dialogType = DialogType.none;
+		if (intent.getExtras().containsKey("dialogType")) {
+			try {
+				dialogType = DialogType.valueOf(intent.getExtras().getString("dialogType"));
+			} catch (IllegalArgumentException e) {
+			} catch (NullPointerException e) {
+			}
+		}
+
+		if (dialogType == DialogType.none)
 			return;
 
 		Intent alertIntent = new Intent(context, AlertActivity.class);
@@ -46,7 +62,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		alertIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		context.startActivity(alertIntent);
-
 	}
 
 	protected void addNotification(Context context, Intent intent) {
@@ -66,12 +81,23 @@ public class BaseReceiveHandler implements ReceiveHandler {
 	private Notification generateNotification(Context context, Bundle extras) {
 		PackageManager packageManager = context.getPackageManager();
 
-		int icon = 0;
-		String title = "";
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+
 		try {
-			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
-			icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
-			title = packageManager.getApplicationLabel(applicationInfo).toString();
+			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+
+			int icon = applicationInfo.icon;
+			if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_META_KEY))
+				icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_META_KEY));
+			String title = packageManager.getApplicationLabel(applicationInfo).toString();
+
+			builder.setTicker(title);
+			builder.setSmallIcon(icon);
+			builder.setContentTitle(title);
+			if (applicationInfo.metaData != null
+					&& applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))
+				builder.setColor(Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)));
+
 		} catch (NameNotFoundException e) {
 		}
 
@@ -82,15 +108,11 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
 		Intent intent = new Intent(context, AlertActivity.class);
 		intent.putExtras(extras);
-		intent.putExtra("showDialog", false);
+		intent.putExtra("dialogType", DialogType.none.toString());
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-		builder.setTicker(title);
-		builder.setSmallIcon(icon);
-		builder.setContentTitle(title);
 		builder.setContentText(message);
 		builder.setContentIntent(pendingIntent);
 		builder.setWhen(System.currentTimeMillis());
@@ -100,7 +122,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
 			builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS);
 
 		return builder.build();
-
 	}
 
 	public Callback getCallback() {
