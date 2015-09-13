@@ -85,12 +85,12 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
 		try {
 			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-			
-			int icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
+
+			int icon = applicationInfo.icon;
 			if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_META_KEY))
 				icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_META_KEY));
 			String title = packageManager.getApplicationLabel(applicationInfo).toString();
-			
+
 			builder.setTicker(title);
 			builder.setSmallIcon(icon);
 			builder.setContentTitle(title);
@@ -108,7 +108,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
 		Intent intent = new Intent(context, AlertActivity.class);
 		intent.putExtras(extras);
-		intent.putExtra("showDialog", false);
+		intent.putExtra("dialogType", DialogType.none.toString());
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);

@@ -43,7 +43,7 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 		PackageManager packageManager = getActivity().getPackageManager();
 		ApplicationInfo applicationInfo = null;
 		try {
-			applicationInfo = packageManager.getApplicationInfo(getActivity().getPackageName(), 0);
+			applicationInfo = packageManager.getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
 		} catch (NameNotFoundException e) {
 			return null;
 		}
@@ -52,12 +52,9 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 		if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.DIALOG_ICON_META_KEY))
 			icon = applicationInfo.metaData.getInt(GrowthPush.DIALOG_ICON_META_KEY);
 
-		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(icon)
-				.setTitle(packageManager.getApplicationLabel(applicationInfo))
-				.setMessage(getArguments().getString("message"))
-				.setPositiveButton("OK", this)
-				.setNegativeButton("Cancel", this).create();
-		 
+		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(icon).setTitle(packageManager.getApplicationLabel(applicationInfo))
+				.setMessage(getArguments().getString("message")).setPositiveButton("OK", this).setNegativeButton("Cancel", this).create();
+
 		dialog.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
